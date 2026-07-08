@@ -2,8 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RealTimeChatApp.Application.Contracts.Services;
 using RealTimeChatApp.Domain.Identity;
 using RealTimeChatApp.Infrastructure.Persistence.Context;
+using RealTimeChatApp.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,7 +40,7 @@ namespace RealTimeChatApp.Infrastructure.Extensions
             //services.AddScoped<IFileService, FileService>();
             //services.AddScoped<IMediaService, MediaService>();
             //services.AddScoped<IEmailService, EmailService>();
-            //services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IAuthService, AuthService>();
             //services.AddScoped<IVideoProcessingService, VideoProcessingService>();
             return services;
         }

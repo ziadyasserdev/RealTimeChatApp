@@ -18,9 +18,4 @@
     <ProjectReference Include="..\RealTimeChatApp.Domain\RealTimeChatApp.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Contracts\" />
-    <Folder Include="Features\Authentications\Dtos\" />
-  </ItemGroup>
-
 </Project>
