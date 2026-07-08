@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <Folder Include="Contracts\" />
+    <Folder Include="Features\Authentications\Dtos\" />
   </ItemGroup>
 
 </Project>
