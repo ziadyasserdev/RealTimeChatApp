@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using RealTimeChatApp.Application.Commons.Results;
 using RealTimeChatApp.Application.Contracts.Identity;
 using RealTimeChatApp.Application.Contracts.Repositories;
+using RealTimeChatApp.Domain.Enums;
 using RealTimeChatApp.Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -16,8 +17,9 @@ namespace RealTimeChatApp.Application.Features.Groups.Commands.SendGroupMessage
     {
         private readonly IUnitOfWork unitOfWork;
         private readonly ICurrentUserService currentUserService;
-
-        public SendGroupMessageCommandHandler(IUnitOfWork unitOfWork,ICurrentUserService currentUserService)
+      
+        public SendGroupMessageCommandHandler(
+            IUnitOfWork unitOfWork,ICurrentUserService currentUserService)
         {
             this.unitOfWork = unitOfWork;
             this.currentUserService = currentUserService;
@@ -44,6 +46,22 @@ namespace RealTimeChatApp.Application.Features.Groups.Commands.SendGroupMessage
                 return Result<int>.Failure(
                     ResultStatus.NotFound,
                     "You are not a member.");
+            var group = await unitOfWork.Groups.GetByIdAsync(request.GroupId);
+            if(group is null)
+            {
+                return Result<int>.Failure(
+                    ResultStatus.NotFound,
+                    "Group not found.");
+            }
+
+            if (group.OnlyAdminsCanSendMessages &&
+    member.Role != GroupRole.Owner.ToString() &&
+    member.Role != GroupRole.Admin.ToString())
+            {
+                return Result<int>.Failure(
+                    ResultStatus.Forbidden,
+                    "Only admins can send messages while announcement mode is enabled.");
+            }
 
             if (member.IsMuted &&
                 member.MutedUntil > DateTime.UtcNow)

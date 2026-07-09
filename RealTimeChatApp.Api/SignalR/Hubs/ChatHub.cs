@@ -22,7 +22,7 @@ namespace RealTimeChatApp.Api.Hubs
         public override async Task OnConnectedAsync()
         {
             var userId = Context.UserIdentifier;
-
+       
             if (string.IsNullOrWhiteSpace(userId))
                 throw new HubException("Unauthorized.");
 

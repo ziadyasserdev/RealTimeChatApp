@@ -10,15 +10,20 @@ using RealTimeChatApp.Application.Contracts.Identity;
 using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.Groups.Commands;
 using RealTimeChatApp.Application.Features.Groups.Commands.AddMember;
+using RealTimeChatApp.Application.Features.Groups.Commands.ChangeAnnouncementMode;
 using RealTimeChatApp.Application.Features.Groups.Commands.CreateGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.DeleteGroup;
+using RealTimeChatApp.Application.Features.Groups.Commands.DeleteGroupImage;
 using RealTimeChatApp.Application.Features.Groups.Commands.DemoteMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.JoinGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup;
+using RealTimeChatApp.Application.Features.Groups.Commands.MuteMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.PromoteMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.RemoveMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.SendGroupMessage;
+using RealTimeChatApp.Application.Features.Groups.Commands.UnMuteMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.UpdateGroup;
+using RealTimeChatApp.Application.Features.Groups.Commands.UploadGroupImage;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupDetails;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMembers;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMessages;
@@ -315,7 +320,23 @@ namespace RealTimeChatApp.Api.Controllers
 
             return result.ToActionResult();
         }
+        [HttpPost("{groupId}/image")]
+        public async Task<IActionResult> UploadGroupImage(
+    int groupId,
+     IFormFile image)
+        {
+            var result = await mediator.Send(
+                new UploadGroupImageCommand(groupId, image));
 
+            if (!result.IsSuccess)
+                return result.ToActionResult();
+
+            await hubContext.Clients
+                .Group($"group-{groupId}")
+                .SendAsync("GroupImageUpdated", result.Value);
+
+            return result.ToActionResult();
+        }
         [HttpPost("{groupId}/members")]
         [SwaggerOperation(
     Summary = "Add member to group",
@@ -361,6 +382,88 @@ namespace RealTimeChatApp.Api.Controllers
                     command.UserId,
                     groupId);
 
+            return result.ToActionResult();
+        }
+
+        [HttpDelete("{groupId}/image")]
+        [SwaggerOperation(
+    Summary = "Delete group image",
+    Description = "Deletes the image of the specified group."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> DeleteGroupImage(int groupId)
+        {
+            var result = await mediator.Send(new DeleteGroupImageCommand(groupId));
+            
+            return result.ToActionResult();
+        }
+
+        [HttpPost("{groupId}/members/{userId}/mute")]
+        public async Task<IActionResult> MuteMember(
+    int groupId,
+    string userId,
+    [FromBody] MuteMemberCommand request)
+        {
+            var result = await mediator.Send(
+                new MuteMemberCommand(
+                    groupId,
+                    userId,
+                    request.MutedUntil));
+
+            if (!result.IsSuccess)
+                return result.ToActionResult();
+
+            await hubContext.Clients
+                .Group($"group-{groupId}")
+                .SendAsync(
+                    "MemberMuted",
+                    userId,
+                    request.MutedUntil);
+
+            return result.ToActionResult();
+        }
+        [HttpPut("{groupId}/members/{userId}/unmute")]
+        public async Task<IActionResult> UnMuteMember(
+    int groupId,
+    string userId)
+        {
+            var result = await mediator.Send(
+                new UnMuteMemberCommand(groupId, userId));
+
+            if (!result.IsSuccess)
+                return result.ToActionResult();
+
+            await hubContext.Clients
+                .Group($"group-{groupId}")
+                .SendAsync(
+                    "MemberUnMuted",
+                    userId);
+
+            return result.ToActionResult();
+        }
+
+        [HttpPut("{groupId}/announcement-mode")]
+        [SwaggerOperation(
+    Summary = "Change announcement mode",
+    Description = "Enables or disables announcement mode. When enabled, only the group owner and admins can send messages."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ChangeAnnouncementMode(
+    int groupId,
+    [FromBody] ChangeAnnouncementModeCommand request)
+        {
+            var command = new ChangeAnnouncementModeCommand(
+                groupId,
+                request.Enable);
+
+            var result = await mediator.Send(command);
+           
             return result.ToActionResult();
         }
     }

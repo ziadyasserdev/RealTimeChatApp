@@ -22,7 +22,7 @@ namespace RealTimeChatApp.Domain.Models
         public int MaxMembers { get; set; }
 
         public string? InviteCode { get; set; }
-
+        public bool OnlyAdminsCanSendMessages { get; set; }
         // Navigation
 
         public ApplicationUser CreatedBy { get; set; } = null!;

@@ -138,19 +138,18 @@ namespace RealTimeChatApp.Api
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
+           
                 app.UseSwagger();
                 app.UseSwaggerUI();
-            }
-            app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
+          
+          //  app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
             app.UseHttpsRedirection();
             app.UseAuthentication();
 
             app.UseAuthorization();
             app.UseCors("AllowAll");
             app.MapHub<ChatHub>("/ChatHub");
-
+            app.UseStaticFiles();
             app.MapControllers();
          
 

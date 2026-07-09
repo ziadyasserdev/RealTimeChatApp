@@ -15,5 +15,6 @@ namespace RealTimeChatApp.Application.Contracts.Services
 
         Result<string> Remove(string url);
         Task<Result<byte[]>> DownloadFileAsync(string url);
+     
     }
 }
