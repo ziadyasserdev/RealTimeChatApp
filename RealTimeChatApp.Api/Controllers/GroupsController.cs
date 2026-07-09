@@ -6,6 +6,8 @@ using RealTimeChatApp.Api.Commons.Responses;
 using RealTimeChatApp.Application.Features.Groups.Commands;
 using RealTimeChatApp.Application.Features.Groups.Commands.CreateGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.JoinGroup;
+using RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup;
+using RealTimeChatApp.Application.Features.Groups.Commands.SendGroupMessage;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -51,6 +53,39 @@ namespace RealTimeChatApp.Api.Controllers
             var result = await mediator.Send(command);
             return result.ToActionResult();
         }
+        [HttpPost("{groupId}/leave")]
+        [SwaggerOperation(
+    Summary = "Leave a group",
+    Description = "Allows the authenticated user to leave the specified group."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> LeaveGroup(int groupId)
+        {
+            var command = new LeaveGroupCommand(groupId);
 
+            var result = await mediator.Send(command);
+            return result.ToActionResult();
+        }
+        [HttpPost("{groupId}/messages")]
+        [SwaggerOperation(
+    Summary = "Send a message to a group",
+    Description = "Sends a new message to the specified group."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SendMessage(
+    int groupId,
+    [FromBody] SendGroupMessageCommand request)
+        {
+            var command = new SendGroupMessageCommand(groupId, request.Content);
+
+            var result = await mediator.Send(command);
+            return result.ToActionResult();
+        }
     }
 }

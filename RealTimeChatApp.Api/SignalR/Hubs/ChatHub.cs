@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using RealTimeChatApp.Application.Contracts.Repositories;
+using RealTimeChatApp.Application.Features.Groups.Dtos;
 using RealTimeChatApp.Domain.Models;
 
 namespace RealTimeChatApp.Api.Hubs
@@ -37,12 +38,27 @@ namespace RealTimeChatApp.Api.Hubs
             };
 
             await _unitOfWork.UserConnections.AddAsync(connection);
+
+           
+            var groupIds = await _unitOfWork.GroupMembers.Query()
+                .Where(x => x.UserId == userId)
+                .Select(x => x.GroupId)
+                .ToListAsync();
+
+            foreach (var groupId in groupIds)
+            {
+                await Groups.AddToGroupAsync(
+                    Context.ConnectionId,
+                    $"group-{groupId}");
+            }
+
             await _unitOfWork.SaveAsync();
 
             _logger.LogInformation(
-                "User {UserId} connected. ConnectionId: {ConnectionId}",
+                "User {UserId} connected with ConnectionId {ConnectionId} and joined {GroupsCount} groups.",
                 userId,
-                Context.ConnectionId);
+                Context.ConnectionId,
+                groupIds.Count);
 
             await base.OnConnectedAsync();
         }
@@ -87,6 +103,14 @@ namespace RealTimeChatApp.Api.Hubs
                 Context.ConnectionId,
                 $"group-{groupId}");
 
+            var userName = Context.User?.Identity?.Name ?? "Unknown";
+
+            await Clients.OthersInGroup($"group-{groupId}")
+                .SendAsync(
+                    "UserJoinedGroup",
+                    userName,
+                    groupId);
+
             _logger.LogInformation(
                 "User {UserId} joined SignalR group {GroupId}",
                 userId,
@@ -95,14 +119,48 @@ namespace RealTimeChatApp.Api.Hubs
 
         public async Task LeaveChatGroupAsync(int groupId)
         {
+            var userName = Context.User?.Identity?.Name ?? "Unknown";
             await Groups.RemoveFromGroupAsync(
                 Context.ConnectionId,
                 $"group-{groupId}");
+            await Clients.Group($"group-{groupId}")
+     .SendAsync(
+         "UserLeftGroup",
+         userName,
+         groupId);
 
             _logger.LogInformation(
                 "Connection {ConnectionId} left SignalR group {GroupId}",
                 Context.ConnectionId,
                 groupId);
+        }
+
+        public async Task SendGroupMessageAsync(int messageId)
+        {
+            var message = await _unitOfWork.GroupMessages.Query()
+
+                .Include(x => x.Sender)
+
+                .FirstOrDefaultAsync(x => x.Id == messageId);
+
+            if (message is null)
+                throw new HubException("Message not found.");
+
+            await Clients.Group($"group-{message.GroupId}")
+
+                .SendAsync(
+                    "ReceiveGroupMessage",
+
+                    new GroupMessageDto
+                    {
+                        Id = message.Id,
+                        GroupId = message.GroupId,
+                        SenderId = message.SenderId,
+                        SenderName = message.Sender.UserName!,
+                        Content = message.Content,
+                        MessageType = message.MessageType,
+                        SentAt = message.SentAt
+                    });
         }
     }
 }

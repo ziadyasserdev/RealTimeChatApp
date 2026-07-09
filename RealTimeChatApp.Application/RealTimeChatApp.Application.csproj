@@ -19,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Groups\Dtos\" />
     <Folder Include="Features\Groups\Queries\" />
   </ItemGroup>
 
