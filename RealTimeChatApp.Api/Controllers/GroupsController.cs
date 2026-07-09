@@ -8,6 +8,8 @@ using RealTimeChatApp.Application.Features.Groups.Commands.CreateGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.JoinGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.SendGroupMessage;
+using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMessages;
+using RealTimeChatApp.Application.Features.Groups.Queries.GetMyGroups;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -85,6 +87,39 @@ namespace RealTimeChatApp.Api.Controllers
             var command = new SendGroupMessageCommand(groupId, request.Content);
 
             var result = await mediator.Send(command);
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{groupId}/messages")]
+        [SwaggerOperation(
+    Summary = "Get group messages",
+    Description = "Retrieves paginated messages for the specified group."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetGroupMessages(
+    int groupId,
+    [FromQuery] int page = 1,
+    [FromQuery] int pageSize = 20)
+        {
+            var query = new GetGroupMessagesQuery(groupId, page, pageSize);
+
+            var result = await mediator.Send(query);
+            return result.ToActionResult();
+        }
+
+        [HttpGet("my-groups")]
+        [SwaggerOperation(
+    Summary = "Get my groups",
+    Description = "Retrieves all groups that the authenticated user is a member of."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetMyGroups()
+        {
+            var result = await mediator.Send(new GetMyGroupsQuery());
             return result.ToActionResult();
         }
     }
