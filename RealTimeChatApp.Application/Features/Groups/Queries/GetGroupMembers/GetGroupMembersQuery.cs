@@ -1,4 +1,7 @@
-﻿using System;
+﻿using MediatR;
+using RealTimeChatApp.Application.Commons.Results;
+using RealTimeChatApp.Application.Features.Groups.Dtos;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +9,6 @@ using System.Threading.Tasks;
 
 namespace RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMembers
 {
-    internal class GetGroupMembersQuery
-    {
-    }
+    public record GetGroupMembersQuery(int GroupId)
+     : IRequest<Result<List<GroupMemberDto>>>;
 }

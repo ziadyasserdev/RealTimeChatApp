@@ -41,7 +41,7 @@ namespace RealTimeChatApp.Infrastructure.Extensions
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
             //// تسجيل IHttpContextAccessor
-           // services.AddScoped<IFileService, FileService>();
+            services.AddScoped<IFileService, FileService>();
             //services.AddScoped<IMediaService, MediaService>();
             //services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<IAuthService, AuthService>();

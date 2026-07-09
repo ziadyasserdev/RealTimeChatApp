@@ -8,6 +8,8 @@ using RealTimeChatApp.Application.Features.Groups.Commands.CreateGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.JoinGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.SendGroupMessage;
+using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupDetails;
+using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMembers;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMessages;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetMyGroups;
 using Swashbuckle.AspNetCore.Annotations;
@@ -120,6 +122,35 @@ namespace RealTimeChatApp.Api.Controllers
         public async Task<IActionResult> GetMyGroups()
         {
             var result = await mediator.Send(new GetMyGroupsQuery());
+            return result.ToActionResult();
+        }
+        [HttpGet("{groupId}")]
+        [SwaggerOperation(
+    Summary = "Get group details",
+    Description = "Retrieves the details of the specified group."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetGroupDetails(int groupId)
+        {
+            var result = await mediator.Send(new GetGroupDetailsQuery(groupId));
+
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{groupId}/members")]
+        [SwaggerOperation(
+    Summary = "Get group members",
+    Description = "Retrieves all members of the specified group."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetGroupMembers(int groupId)
+        {
+            var result = await mediator.Send(new GetGroupMembersQuery(groupId));
+
             return result.ToActionResult();
         }
     }

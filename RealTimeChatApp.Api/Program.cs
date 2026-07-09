@@ -129,7 +129,7 @@ namespace RealTimeChatApp.Api
 
             builder.Services.AddInfrastructureServices(builder.Configuration)
                 .AddApplicationDependency();
-
+            builder.Services.Configure<FileStorageSettings>(builder.Configuration.GetSection("FileStorageSettings"));
 
             builder.Services.AddSignalR();
             builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
