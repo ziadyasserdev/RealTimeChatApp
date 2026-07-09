@@ -1,6 +1,11 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using RealTimeChatApp.Api.Hubs;
+using RealTimeChatApp.Api.Middleware;
+using RealTimeChatApp.Api.SignalR.Services;
 using RealTimeChatApp.Application.Extensions;
 using RealTimeChatApp.Application.Settings;
 using RealTimeChatApp.Infrastructure.Extensions;
@@ -19,7 +24,10 @@ namespace RealTimeChatApp.Api
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(options =>
+            {
+                options.EnableAnnotations();
+            });
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
@@ -51,10 +59,29 @@ namespace RealTimeChatApp.Api
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.
                     Configuration["JwtSetting:SecretKey"]))
                 };
+
+                o.Events = new JwtBearerEvents
+                {
+                    OnMessageReceived = context =>
+                    {
+                        var accessToken = context.Request.Query["access_token"];
+
+                        var path = context.HttpContext.Request.Path;
+
+                        if (!string.IsNullOrEmpty(accessToken)
+                            && path.StartsWithSegments("/chatHub"))
+                        {
+                            context.Token = accessToken;
+                        }
+
+                        return Task.CompletedTask;
+                    }
+                };
             });
 
             builder.Services.AddSwaggerGen(options =>
             {
+              
                 options.AddSecurityDefinition(name: JwtBearerDefaults.AuthenticationScheme,
     securityScheme: new OpenApiSecurityScheme
     {
@@ -103,6 +130,11 @@ namespace RealTimeChatApp.Api
             builder.Services.AddInfrastructureServices(builder.Configuration)
                 .AddApplicationDependency();
 
+
+            builder.Services.AddSignalR();
+            builder.Services.AddSingleton<IUserIdProvider, CustomUserIdProvider>();
+            builder.Services.AddHttpContextAccessor();
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -111,13 +143,16 @@ namespace RealTimeChatApp.Api
                 app.UseSwagger();
                 app.UseSwaggerUI();
             }
-
+            app.UseMiddleware<GlobalExceptionHandlingMiddleware>();
             app.UseHttpsRedirection();
+            app.UseAuthentication();
 
             app.UseAuthorization();
-
+            app.UseCors("AllowAll");
+            app.MapHub<ChatHub>("/ChatHub");
 
             app.MapControllers();
+         
 
             app.Run();
         }

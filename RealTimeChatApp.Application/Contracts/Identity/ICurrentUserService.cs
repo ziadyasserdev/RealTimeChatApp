@@ -6,7 +6,16 @@ using System.Threading.Tasks;
 
 namespace RealTimeChatApp.Application.Contracts.Identity
 {
-    internal class ICurrentUserService
+    public interface ICurrentUserService
     {
+        string? UserId { get; }
+        string? Email { get; }
+        string? UserName { get; }
+        bool IsAuthenticated { get; }
+        //bool IsDeleted { get; }
+        IEnumerable<string> Roles { get; }
+
+        public bool IsInRole(string role);
+
     }
 }

@@ -2,9 +2,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using RealTimeChatApp.Application.Contracts.Identity;
+using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Contracts.Services;
 using RealTimeChatApp.Domain.Identity;
+using RealTimeChatApp.Infrastructure.Identity;
 using RealTimeChatApp.Infrastructure.Persistence.Context;
+using RealTimeChatApp.Infrastructure.Respositories;
 using RealTimeChatApp.Infrastructure.Services;
 using System;
 using System.Collections.Generic;
@@ -34,8 +38,8 @@ namespace RealTimeChatApp.Infrastructure.Extensions
             .AddRoles<IdentityRole>()
             .AddEntityFrameworkStores<ApplicationDbContext>()
            ;
-            //services.AddScoped<IUnitOfWork, UnitOfWork>();
-            //services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddScoped<IUnitOfWork, UnitOfWork>();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
             //// تسجيل IHttpContextAccessor
             //services.AddScoped<IFileService, FileService>();
             //services.AddScoped<IMediaService, MediaService>();
