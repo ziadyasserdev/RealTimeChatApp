@@ -10,15 +10,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup
+namespace RealTimeChatApp.Application.Features.Groups.Commands.RemoveMember
 {
-    public class LeaveGroupCommandHandler
-    : IRequestHandler<LeaveGroupCommand, Result<string>>
+    public class RemoveMemberCommandHandler
+      : IRequestHandler<RemoveMemberCommand, Result<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUser;
 
-        public LeaveGroupCommandHandler(
+        public RemoveMemberCommandHandler(
             IUnitOfWork unitOfWork,
             ICurrentUserService currentUser)
         {
@@ -27,7 +27,7 @@ namespace RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup
         }
 
         public async Task<Result<string>> Handle(
-            LeaveGroupCommand request,
+            RemoveMemberCommand request,
             CancellationToken cancellationToken)
         {
             if (!_currentUser.IsAuthenticated)
@@ -37,27 +37,61 @@ namespace RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup
                     "User is not authenticated.");
             }
 
-            var userId = _currentUser.UserId!;
+            var currentUserId = _currentUser.UserId!;
 
-            var member = await _unitOfWork.GroupMembers
+         
+            var currentMember = await _unitOfWork.GroupMembers
                 .Query()
                 .FirstOrDefaultAsync(x =>
                     x.GroupId == request.GroupId &&
-                    x.UserId == userId,
+                    x.UserId == currentUserId,
                     cancellationToken);
 
-            if (member is null)
+            if (currentMember is null)
             {
                 return Result<string>.Failure(
-                    ResultStatus.NotFound,
+                    ResultStatus.Forbidden,
                     "You are not a member of this group.");
             }
 
-            if (member.Role == GroupRole.Owner.ToString())
+         
+            var targetMember = await _unitOfWork.GroupMembers
+                .Query()
+                .FirstOrDefaultAsync(x =>
+                    x.GroupId == request.GroupId &&
+                    x.UserId == request.UserId,
+                    cancellationToken);
+
+            if (targetMember is null)
+            {
+                return Result<string>.Failure(
+                    ResultStatus.NotFound,
+                    "Member not found.");
+            }
+
+          
+            if (targetMember.Role == GroupRole.Owner.ToString())
             {
                 return Result<string>.Failure(
                     ResultStatus.Failure,
-                    "Group owner cannot leave the group. Transfer ownership or delete the group first.");
+                    "Owner cannot be removed.");
+            }
+
+           
+            if (currentMember.Role == GroupRole.Member.ToString())
+            {
+                return Result<string>.Failure(
+                    ResultStatus.Forbidden,
+                    "You don't have permission to remove members.");
+            }
+
+         
+            if (currentMember.Role == GroupRole.Admin.ToString() &&
+                targetMember.Role == GroupRole.Admin.ToString())
+            {
+                return Result<string>.Failure(
+                    ResultStatus.Forbidden,
+                    "Admin cannot remove another admin.");
             }
 
             await using var transaction =
@@ -65,21 +99,21 @@ namespace RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup
 
             try
             {
-                _unitOfWork.GroupMembers.Delete(member);
+                _unitOfWork.GroupMembers.Delete(targetMember);
 
                 await _unitOfWork.SaveAsync();
 
                 await transaction.CommitAsync(cancellationToken);
 
                 return Result<string>.Success(
-                    "You left the group successfully.");
+                    "Member removed successfully.");
             }
             catch
             {
                 await transaction.RollbackAsync(cancellationToken);
+
                 throw;
             }
         }
     }
-    
 }

@@ -10,15 +10,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup
+namespace RealTimeChatApp.Application.Features.Groups.Commands.DeleteGroup
 {
-    public class LeaveGroupCommandHandler
-    : IRequestHandler<LeaveGroupCommand, Result<string>>
+    public class DeleteGroupCommandHandler
+      : IRequestHandler<DeleteGroupCommand, Result<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUser;
 
-        public LeaveGroupCommandHandler(
+        public DeleteGroupCommandHandler(
             IUnitOfWork unitOfWork,
             ICurrentUserService currentUser)
         {
@@ -27,52 +27,49 @@ namespace RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup
         }
 
         public async Task<Result<string>> Handle(
-            LeaveGroupCommand request,
+            DeleteGroupCommand request,
             CancellationToken cancellationToken)
         {
             if (!_currentUser.IsAuthenticated)
-            {
                 return Result<string>.Failure(
                     ResultStatus.Unauthorized,
                     "User is not authenticated.");
-            }
 
             var userId = _currentUser.UserId!;
 
-            var member = await _unitOfWork.GroupMembers
+            var group = await _unitOfWork.Groups
                 .Query()
+                .Include(x => x.Members)
                 .FirstOrDefaultAsync(x =>
-                    x.GroupId == request.GroupId &&
-                    x.UserId == userId,
+                    x.Id == request.GroupId,
                     cancellationToken);
 
-            if (member is null)
-            {
+            if (group is null)
                 return Result<string>.Failure(
                     ResultStatus.NotFound,
-                    "You are not a member of this group.");
-            }
+                    "Group not found.");
 
-            if (member.Role == GroupRole.Owner.ToString())
-            {
+            var owner = group.Members.FirstOrDefault(x =>
+                x.UserId == userId &&
+                x.Role == GroupRole.Owner.ToString());
+
+            if (owner is null)
                 return Result<string>.Failure(
-                    ResultStatus.Failure,
-                    "Group owner cannot leave the group. Transfer ownership or delete the group first.");
-            }
+                    ResultStatus.Forbidden,
+                    "Only owner can delete this group.");
 
             await using var transaction =
                 await _unitOfWork.BeginTransactionAsync();
 
             try
             {
-                _unitOfWork.GroupMembers.Delete(member);
+                _unitOfWork.Groups.Delete(group);
 
                 await _unitOfWork.SaveAsync();
 
                 await transaction.CommitAsync(cancellationToken);
 
-                return Result<string>.Success(
-                    "You left the group successfully.");
+                return Result<string>.Success("Group deleted successfully.");
             }
             catch
             {
@@ -81,5 +78,4 @@ namespace RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup
             }
         }
     }
-    
 }

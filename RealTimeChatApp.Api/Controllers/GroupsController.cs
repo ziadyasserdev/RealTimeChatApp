@@ -1,18 +1,30 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client.Extensibility;
 using RealTimeChatApp.Api.Commons.Responses;
+using RealTimeChatApp.Api.Hubs;
+using RealTimeChatApp.Application.Contracts.Identity;
+using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.Groups.Commands;
+using RealTimeChatApp.Application.Features.Groups.Commands.AddMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.CreateGroup;
+using RealTimeChatApp.Application.Features.Groups.Commands.DeleteGroup;
+using RealTimeChatApp.Application.Features.Groups.Commands.DemoteMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.JoinGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup;
+using RealTimeChatApp.Application.Features.Groups.Commands.PromoteMember;
+using RealTimeChatApp.Application.Features.Groups.Commands.RemoveMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.SendGroupMessage;
+using RealTimeChatApp.Application.Features.Groups.Commands.UpdateGroup;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupDetails;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMembers;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMessages;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetMyGroups;
 using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 
 namespace RealTimeChatApp.Api.Controllers
 {
@@ -21,10 +33,19 @@ namespace RealTimeChatApp.Api.Controllers
     public class GroupsController : ControllerBase
     {
         private readonly IMediator mediator;
+        private readonly IHubContext<ChatHub> hubContext;
+        private readonly IUnitOfWork unitOfWork;
+        private readonly ICurrentUserService currentUserService;
 
-        public GroupsController(IMediator mediator)
+        public GroupsController(IMediator mediator
+            , IHubContext<ChatHub> hubContext
+            , IUnitOfWork unitOfWork
+            , ICurrentUserService currentUserService)
         {
             this.mediator = mediator;
+            this.hubContext = hubContext;
+            this.unitOfWork = unitOfWork;
+            this.currentUserService = currentUserService;
         }
         [HttpPost]
         [SwaggerOperation(
@@ -57,11 +78,11 @@ namespace RealTimeChatApp.Api.Controllers
             var result = await mediator.Send(command);
             return result.ToActionResult();
         }
-        [HttpPost("{groupId}/leave")]
+        [HttpDelete("{groupId}/leave")]
         [SwaggerOperation(
-    Summary = "Leave a group",
-    Description = "Allows the authenticated user to leave the specified group."
-)]
+       Summary = "Leave Group",
+       Description = "Allows the current authenticated user to leave the group."
+   )]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
@@ -71,6 +92,36 @@ namespace RealTimeChatApp.Api.Controllers
             var command = new LeaveGroupCommand(groupId);
 
             var result = await mediator.Send(command);
+
+            if (!result.IsSuccess)
+                return result.ToActionResult();
+
+
+            var currentUserId = currentUserService.UserId!;
+
+            var connections = await unitOfWork.UserConnections
+                .Query()
+                .Where(x => x.UserId == currentUserId && x.IsActive)
+                .ToListAsync();
+
+            foreach (var connection in connections)
+            {
+                await hubContext.Groups.RemoveFromGroupAsync(
+                    connection.ConnectionId,
+                    $"group-{groupId}");
+            }
+
+
+            await hubContext.Clients
+                .Group($"group-{groupId}")
+                .SendAsync(
+                    "UserLeftGroup",
+                    new
+                    {
+                        GroupId = groupId,
+                        UserId = currentUserId
+                    });
+
             return result.ToActionResult();
         }
         [HttpPost("{groupId}/messages")]
@@ -150,6 +201,165 @@ namespace RealTimeChatApp.Api.Controllers
         public async Task<IActionResult> GetGroupMembers(int groupId)
         {
             var result = await mediator.Send(new GetGroupMembersQuery(groupId));
+
+            return result.ToActionResult();
+        }
+        [HttpDelete("{groupId}/members/{userId}")]
+        [SwaggerOperation(
+            Summary = "Remove a member from the group",
+            Description = "Removes the specified member from the group. Only the group owner or admins can perform this action."
+        )]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RemoveMember(
+            int groupId,
+            string userId)
+        {
+            var command = new RemoveMemberCommand(groupId, userId);
+
+            var result = await mediator.Send(command);
+
+            if (!result.IsSuccess)
+                return result.ToActionResult();
+
+
+            var connections = await unitOfWork.UserConnections
+                .Query()
+                .Where(x => x.UserId == userId && x.IsActive)
+                .ToListAsync();
+
+
+            foreach (var connection in connections)
+            {
+                await hubContext.Groups.RemoveFromGroupAsync(
+                    connection.ConnectionId,
+                    $"group-{groupId}");
+            }
+
+
+            await hubContext.Clients
+                .Group($"group-{groupId}")
+                .SendAsync(
+                    "MemberRemoved",
+                    new
+                    {
+                        GroupId = groupId,
+                        UserId = userId
+                    });
+
+            return result.ToActionResult();
+        }
+        [HttpPut("{groupId}")]
+        [SwaggerOperation(
+    Summary = "Update Group",
+    Description = "Update group information."
+)]
+        public async Task<IActionResult> UpdateGroup(
+    int groupId,
+    UpdateGroupCommand command)
+        {
+            if (groupId != command.GroupId)
+                return BadRequest();
+
+            var result = await mediator.Send(command);
+
+            if (!result.IsSuccess)
+                return result.ToActionResult();
+
+            await hubContext.Clients
+                .Group($"group-{groupId}")
+                .SendAsync("GroupUpdated");
+
+            return result.ToActionResult();
+        }
+
+
+        [HttpPut("{groupId}/members/{userId}/promote")]
+        public async Task<IActionResult> Promote(
+    int groupId,
+    string userId)
+        {
+            var result = await mediator.Send(
+                new PromoteMemberCommand(groupId, userId));
+
+            if (!result.IsSuccess)
+                return result.ToActionResult();
+
+            await hubContext.Clients
+                .Group($"group-{groupId}")
+                .SendAsync(
+                    "MemberPromoted",
+                    userId);
+
+            return result.ToActionResult();
+        }
+        [HttpPut("{groupId}/members/{userId}/demote")]
+        public async Task<IActionResult> Demote(
+    int groupId,
+    string userId)
+        {
+            var result = await mediator.Send(
+                new DemoteMemberCommand(groupId, userId));
+
+            if (!result.IsSuccess)
+                return result.ToActionResult();
+
+            await hubContext.Clients
+                .Group($"group-{groupId}")
+                .SendAsync(
+                    "MemberDemoted",
+                    userId);
+
+            return result.ToActionResult();
+        }
+
+        [HttpPost("{groupId}/members")]
+        [SwaggerOperation(
+    Summary = "Add member to group",
+    Description = "Adds a user to the group. Only Owner or Admin can add members."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> AddMember(
+    int groupId,
+    AddMemberCommand command)
+        {
+            if (groupId != command.GroupId)
+                return BadRequest();
+
+            var result = await mediator.Send(command);
+
+            if (!result.IsSuccess)
+                return result.ToActionResult();
+
+           
+            var connections = await unitOfWork.UserConnections
+                .Query()
+                .Where(x =>
+                    x.UserId == command.UserId &&
+                    x.IsActive)
+                .ToListAsync();
+
+            foreach (var connection in connections)
+            {
+                await hubContext.Groups.AddToGroupAsync(
+                    connection.ConnectionId,
+                    $"group-{groupId}");
+            }
+
+           
+            await hubContext.Clients
+                .Group($"group-{groupId}")
+                .SendAsync(
+                    "MemberAdded",
+                    command.UserId,
+                    groupId);
 
             return result.ToActionResult();
         }

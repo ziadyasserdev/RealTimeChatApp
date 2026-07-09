@@ -117,23 +117,7 @@ namespace RealTimeChatApp.Api.Hubs
                 groupId);
         }
 
-        public async Task LeaveChatGroupAsync(int groupId)
-        {
-            var userName = Context.User?.Identity?.Name ?? "Unknown";
-            await Groups.RemoveFromGroupAsync(
-                Context.ConnectionId,
-                $"group-{groupId}");
-            await Clients.Group($"group-{groupId}")
-     .SendAsync(
-         "UserLeftGroup",
-         userName,
-         groupId);
-
-            _logger.LogInformation(
-                "Connection {ConnectionId} left SignalR group {GroupId}",
-                Context.ConnectionId,
-                groupId);
-        }
+       
 
         public async Task SendGroupMessageAsync(int messageId)
         {

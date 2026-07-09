@@ -10,15 +10,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup
+namespace RealTimeChatApp.Application.Features.Groups.Commands.PromoteMember
 {
-    public class LeaveGroupCommandHandler
-    : IRequestHandler<LeaveGroupCommand, Result<string>>
+    public class PromoteMemberCommandHandler
+     : IRequestHandler<PromoteMemberCommand, Result<string>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUser;
 
-        public LeaveGroupCommandHandler(
+        public PromoteMemberCommandHandler(
             IUnitOfWork unitOfWork,
             ICurrentUserService currentUser)
         {
@@ -27,59 +27,53 @@ namespace RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup
         }
 
         public async Task<Result<string>> Handle(
-            LeaveGroupCommand request,
+            PromoteMemberCommand request,
             CancellationToken cancellationToken)
         {
             if (!_currentUser.IsAuthenticated)
-            {
                 return Result<string>.Failure(
                     ResultStatus.Unauthorized,
                     "User is not authenticated.");
-            }
 
-            var userId = _currentUser.UserId!;
+            var ownerId = _currentUser.UserId!;
 
-            var member = await _unitOfWork.GroupMembers
-                .Query()
+            var owner = await _unitOfWork.GroupMembers.Query()
                 .FirstOrDefaultAsync(x =>
                     x.GroupId == request.GroupId &&
-                    x.UserId == userId,
+                    x.UserId == ownerId,
+                    cancellationToken);
+
+            if (owner is null || owner.Role != GroupRole.Owner.ToString())
+                return Result<string>.Failure(
+                    ResultStatus.Forbidden,
+                    "Only owner can promote members.");
+
+            var member = await _unitOfWork.GroupMembers.Query()
+                .FirstOrDefaultAsync(x =>
+                    x.GroupId == request.GroupId &&
+                    x.UserId == request.UserId,
                     cancellationToken);
 
             if (member is null)
-            {
                 return Result<string>.Failure(
                     ResultStatus.NotFound,
-                    "You are not a member of this group.");
-            }
+                    "Member not found.");
 
-            if (member.Role == GroupRole.Owner.ToString())
-            {
+            if (member.Role == GroupRole.Admin.ToString())
                 return Result<string>.Failure(
                     ResultStatus.Failure,
-                    "Group owner cannot leave the group. Transfer ownership or delete the group first.");
-            }
+                    "Member is already admin.");
 
-            await using var transaction =
-                await _unitOfWork.BeginTransactionAsync();
+            if (member.Role == GroupRole.Owner.ToString())
+                return Result<string>.Failure(
+                    ResultStatus.Failure,
+                    "Owner cannot be promoted.");
 
-            try
-            {
-                _unitOfWork.GroupMembers.Delete(member);
+            member.Role = GroupRole.Admin.ToString();
 
-                await _unitOfWork.SaveAsync();
+            await _unitOfWork.SaveAsync();
 
-                await transaction.CommitAsync(cancellationToken);
-
-                return Result<string>.Success(
-                    "You left the group successfully.");
-            }
-            catch
-            {
-                await transaction.RollbackAsync(cancellationToken);
-                throw;
-            }
+            return Result<string>.Success("Member promoted successfully.");
         }
     }
-    
 }
