@@ -645,20 +645,6 @@ Send Group Messages
 Real-Time Synchronization
 ```
 
----
-
-# 📸 API Preview
-
-<p align="center">
-
-<img src="images/swagger-home.png" width="900"/>
-
-</p>
-
-> Replace the image above with your Swagger homepage screenshot.
-
----
-
 # 📈 Future Improvements
 
 - Redis Backplane for SignalR Scaling
