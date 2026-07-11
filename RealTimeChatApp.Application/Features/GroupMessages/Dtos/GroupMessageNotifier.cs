@@ -27,5 +27,10 @@ namespace RealTimeChatApp.Application.Features.GroupMessages.Dtos
         public DateTime? EditedAt { get; set; }
 
         public bool IsPinned { get; set; }
+        public int? ReplyToMessageId { get; set; }
+
+        public string? ReplyContent { get; set; }
+
+        public string? ReplySenderName { get; set; }
     }
 }

@@ -23,7 +23,9 @@ namespace RealTimeChatApp.Domain.Models
         public MessageType MessageType { get; set; }
 
 
+        public int? ReplyToMessageId { get; set; }
 
+    
 
         public bool IsPinned { get; set; }
 
@@ -36,7 +38,7 @@ namespace RealTimeChatApp.Domain.Models
         // Navigation
 
         public Group Group { get; set; } = null!;
-
+        public GroupMessage? ReplyToMessage { get; set; }
         public ApplicationUser Sender { get; set; } = null!;
       
         public ICollection<GroupMessageRead> Reads { get; set; } = new List<GroupMessageRead>();

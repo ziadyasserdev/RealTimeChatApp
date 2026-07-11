@@ -14,6 +14,27 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
         {
             _hubContext = hubContext;
         }
+        public async Task MessageReadAsync(
+    MessageReadNotifierDto dto)
+        {
+            await _hubContext.Clients
+                .Group($"group-{dto.GroupId}")
+                .SendAsync("MessageRead", dto);
+        }
+        public async Task MessageUnPinnedAsync(
+    MessageUnPinnedNotifierDto dto)
+        {
+            await _hubContext.Clients
+                .Group($"group-{dto.GroupId}")
+                .SendAsync("MessageUnPinned", dto);
+        }
+        public async Task MessagePinnedAsync(
+    MessagePinnedNotifierDto dto)
+        {
+            await _hubContext.Clients
+                .Group($"group-{dto.GroupId}")
+                .SendAsync("MessagePinned", dto);
+        }
         public async Task MessageDeletedAsync(
     MessageDeletedNotifierDto dto)
         {

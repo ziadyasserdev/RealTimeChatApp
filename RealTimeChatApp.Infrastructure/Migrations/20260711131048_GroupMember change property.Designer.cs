@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RealTimeChatApp.Infrastructure.Persistence.Context;
 
@@ -11,9 +12,11 @@ using RealTimeChatApp.Infrastructure.Persistence.Context;
 namespace RealTimeChatApp.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260711131048_GroupMember change property")]
+    partial class GroupMemberchangeproperty
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -369,9 +372,6 @@ namespace RealTimeChatApp.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("ReplyToMessageId")
-                        .HasColumnType("int");
-
                     b.Property<string>("SenderId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
@@ -385,8 +385,6 @@ namespace RealTimeChatApp.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
-
-                    b.HasIndex("ReplyToMessageId");
 
                     b.HasIndex("SenderId");
 
@@ -616,11 +614,6 @@ namespace RealTimeChatApp.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("RealTimeChatApp.Domain.Models.GroupMessage", "ReplyToMessage")
-                        .WithMany()
-                        .HasForeignKey("ReplyToMessageId")
-                        .OnDelete(DeleteBehavior.NoAction);
-
                     b.HasOne("RealTimeChatApp.Domain.Identity.ApplicationUser", "Sender")
                         .WithMany("GroupMessages")
                         .HasForeignKey("SenderId")
@@ -628,8 +621,6 @@ namespace RealTimeChatApp.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Group");
-
-                    b.Navigation("ReplyToMessage");
 
                     b.Navigation("Sender");
                 });

@@ -32,6 +32,10 @@ namespace RealTimeChatApp.Infrastructure.Persistence.Configuration
                    .WithMany(x => x.GroupMessages)
                    .HasForeignKey(x => x.SenderId)
                    .OnDelete(DeleteBehavior.Restrict);
+            builder.HasOne(x => x.ReplyToMessage)
+    .WithMany()
+    .HasForeignKey(x => x.ReplyToMessageId)
+    .OnDelete(DeleteBehavior.NoAction);
         }
     }
 }

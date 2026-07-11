@@ -24,7 +24,7 @@ namespace RealTimeChatApp.Domain.Models
 
         public DateTime? MutedUntil { get; set; }
 
-        public Guid? LastReadMessageId { get; set; }
+     
 
         // Navigation
 

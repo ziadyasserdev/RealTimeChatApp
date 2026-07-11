@@ -113,7 +113,7 @@ namespace RealTimeChatApp.Application.Features.Groups.Commands.AddMember
                 CreatedAt = DateTime.UtcNow,
                 IsMuted = false,
                 MutedUntil = null,
-                LastReadMessageId = null
+              
             };
 
             await _unitOfWork.GroupMembers.AddAsync(member);

@@ -7,10 +7,11 @@ using System.Threading.Tasks;
 
 namespace RealTimeChatApp.Application.Features.GroupMessages.Commands.SendTextMessage
 {
-    public class SendTextMessageCommandValidator
-     : AbstractValidator<SendTextMessageCommand>
+
+    public class SendTextMessageValidator
+        : AbstractValidator<SendTextMessageCommand>
     {
-        public SendTextMessageCommandValidator()
+        public SendTextMessageValidator()
         {
             RuleFor(x => x.GroupId)
                 .GreaterThan(0);
@@ -19,9 +20,9 @@ namespace RealTimeChatApp.Application.Features.GroupMessages.Commands.SendTextMe
                 .NotEmpty()
                 .MaximumLength(2000);
 
-            RuleFor(x => x.Content)
-                .Must(x => !string.IsNullOrWhiteSpace(x))
-                .WithMessage("Message cannot be empty.");
+            RuleFor(x => x.ReplyToMessageId)
+                .GreaterThan(0)
+                .When(x => x.ReplyToMessageId.HasValue);
         }
     }
 }
