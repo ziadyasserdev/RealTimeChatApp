@@ -5,6 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RealTimeChatApp.Api.Hubs;
 using RealTimeChatApp.Api.Middleware;
+using RealTimeChatApp.Api.SignalR.NotifierService;
 using RealTimeChatApp.Api.SignalR.Services;
 using RealTimeChatApp.Application.Extensions;
 using RealTimeChatApp.Application.Settings;
@@ -28,6 +29,13 @@ namespace RealTimeChatApp.Api
             {
                 options.EnableAnnotations();
             });
+
+
+            builder.Services.AddScoped<IChatHubNotifier, ChatHubNotifier>();
+
+
+
+
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
@@ -78,6 +86,10 @@ namespace RealTimeChatApp.Api
                     }
                 };
             });
+
+
+      
+
 
             builder.Services.AddSwaggerGen(options =>
             {

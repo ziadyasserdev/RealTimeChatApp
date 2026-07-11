@@ -119,32 +119,32 @@ namespace RealTimeChatApp.Api.Hubs
 
        
 
-        public async Task SendGroupMessageAsync(int messageId)
-        {
-            var message = await _unitOfWork.GroupMessages.Query()
+        //public async Task SendGroupMessageAsync(int messageId)
+        //{
+        //    var message = await _unitOfWork.GroupMessages.Query()
 
-                .Include(x => x.Sender)
+        //        .Include(x => x.Sender)
 
-                .FirstOrDefaultAsync(x => x.Id == messageId);
+        //        .FirstOrDefaultAsync(x => x.Id == messageId);
 
-            if (message is null)
-                throw new HubException("Message not found.");
+        //    if (message is null)
+        //        throw new HubException("Message not found.");
 
-            await Clients.Group($"group-{message.GroupId}")
+        //    await Clients.Group($"group-{message.GroupId}")
 
-                .SendAsync(
-                    "ReceiveGroupMessage",
+        //        .SendAsync(
+        //            "ReceiveGroupMessage",
 
-                    new GroupMessageDto
-                    {
-                        Id = message.Id,
-                        GroupId = message.GroupId,
-                        SenderId = message.SenderId,
-                        SenderName = message.Sender.UserName!,
-                        Content = message.Content,
-                        MessageType = message.MessageType,
-                        SentAt = message.SentAt
-                    });
-        }
+        //            new GroupMessageDto
+        //            {
+        //                Id = message.Id,
+        //                GroupId = message.GroupId,
+        //                SenderId = message.SenderId,
+        //                SenderName = message.Sender.UserName!,
+        //                Content = message.Content,
+        //                MessageType = message.MessageType,
+        //                SentAt = message.SentAt
+        //            });
+        //}
     }
 }

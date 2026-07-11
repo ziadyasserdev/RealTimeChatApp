@@ -1,4 +1,5 @@
-﻿using RealTimeChatApp.Domain.Identity;
+﻿using RealTimeChatApp.Domain.Enums;
+using RealTimeChatApp.Domain.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,10 +19,11 @@ namespace RealTimeChatApp.Domain.Models
         public string SenderId { get; set; } = null!;
 
         public string Content { get; set; } = null!;
+         
+        public MessageType MessageType { get; set; }
 
-        public string MessageType { get; set; }
 
-    
+
 
         public bool IsPinned { get; set; }
 

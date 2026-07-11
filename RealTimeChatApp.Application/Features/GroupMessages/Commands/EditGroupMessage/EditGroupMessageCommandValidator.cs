@@ -5,14 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.Groups.Commands.SendGroupMessage
+namespace RealTimeChatApp.Application.Features.GroupMessages.Commands.EditGroupMessage
 {
-    public class SendGroupMessageValidator
-    : AbstractValidator<SendGroupMessageCommand>
+    public class EditGroupMessageCommandValidator
+    : AbstractValidator<EditGroupMessageCommand>
     {
-        public SendGroupMessageValidator()
+        public EditGroupMessageCommandValidator()
         {
-            RuleFor(x => x.GroupId)
+            RuleFor(x => x.MessageId)
                 .GreaterThan(0);
 
             RuleFor(x => x.Content)

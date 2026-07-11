@@ -20,13 +20,12 @@ using RealTimeChatApp.Application.Features.Groups.Commands.LeaveGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.MuteMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.PromoteMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.RemoveMember;
-using RealTimeChatApp.Application.Features.Groups.Commands.SendGroupMessage;
 using RealTimeChatApp.Application.Features.Groups.Commands.UnMuteMember;
 using RealTimeChatApp.Application.Features.Groups.Commands.UpdateGroup;
 using RealTimeChatApp.Application.Features.Groups.Commands.UploadGroupImage;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupDetails;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMembers;
-using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMessages;
+//using RealTimeChatApp.Application.Features.Groups.Queries.GetGroupMessages;
 using RealTimeChatApp.Application.Features.Groups.Queries.GetMyGroups;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
@@ -129,44 +128,27 @@ namespace RealTimeChatApp.Api.Controllers
 
             return result.ToActionResult();
         }
-        [HttpPost("{groupId}/messages")]
-        [SwaggerOperation(
-    Summary = "Send a message to a group",
-    Description = "Sends a new message to the specified group."
-)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> SendMessage(
-    int groupId,
-    [FromBody] SendGroupMessageCommand request)
-        {
-            var command = new SendGroupMessageCommand(groupId, request.Content);
+     
 
-            var result = await mediator.Send(command);
-            return result.ToActionResult();
-        }
+//        [HttpGet("{groupId}/messages")]
+//        [SwaggerOperation(
+//    Summary = "Get group messages",
+//    Description = "Retrieves paginated messages for the specified group."
+//)]
+//        [ProducesResponseType(StatusCodes.Status200OK)]
+//        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+//        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+//        [ProducesResponseType(StatusCodes.Status404NotFound)]
+//        public async Task<IActionResult> GetGroupMessages(
+//    int groupId,
+//    [FromQuery] int page = 1,
+//    [FromQuery] int pageSize = 20)
+//        {
+//            var query = new GetGroupMessagesQuery(groupId, page, pageSize);
 
-        [HttpGet("{groupId}/messages")]
-        [SwaggerOperation(
-    Summary = "Get group messages",
-    Description = "Retrieves paginated messages for the specified group."
-)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetGroupMessages(
-    int groupId,
-    [FromQuery] int page = 1,
-    [FromQuery] int pageSize = 20)
-        {
-            var query = new GetGroupMessagesQuery(groupId, page, pageSize);
-
-            var result = await mediator.Send(query);
-            return result.ToActionResult();
-        }
+//            var result = await mediator.Send(query);
+//            return result.ToActionResult();
+//        }
 
         [HttpGet("my-groups")]
         [SwaggerOperation(
