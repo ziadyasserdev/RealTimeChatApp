@@ -2,6 +2,7 @@
 using RealTimeChatApp.Api.Hubs;
 using RealTimeChatApp.Application.Features.GroupMessages.Dtos;
 using RealTimeChatApp.Application.Features.Groups.Dtos;
+using RealTimeChatApp.Application.Features.PrivateMessages.Dtos;
 using RealTimeChatApp.Application.Features.Reactions.Dtos;
 
 namespace RealTimeChatApp.Api.SignalR.NotifierService
@@ -56,6 +57,57 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
             await _hubContext.Clients
                 .Group($"group-{message.GroupId}")
                 .SendAsync("MessageEdited", message);
+        }
+        public async Task SendPrivateMessageAsync(
+    PrivateMessageNotifierDto dto)
+        {
+          
+            await _hubContext.Clients
+                .User(dto.ReceiverId)
+                .SendAsync("ReceivePrivateMessage", dto);
+
+          
+            await _hubContext.Clients
+                .User(dto.SenderId)
+                .SendAsync("ReceiveMyPrivateMessage", dto);
+        }
+        public async Task PrivateMessageEditedAsync(
+    PrivateMessageNotifierDto dto)
+        {
+            await _hubContext.Clients
+                .User(dto.SenderId)
+                .SendAsync("PrivateMessageEdited", dto);
+
+            await _hubContext.Clients
+                .User(dto.ReceiverId)
+                .SendAsync("PrivateMessageEdited", dto);
+        }
+        public async Task PrivateMessageDeletedForMeAsync(
+    DeletePrivateMessageNotifierDto dto)
+        {
+            await _hubContext.Clients
+                .User(dto.UserId)
+                .SendAsync(
+                    "PrivateMessageDeletedForMe",
+                    dto);
+        }
+        public async Task PrivateMessageDeletedForEveryoneAsync(
+    PrivateMessageNotifierDto dto)
+        {
+            await _hubContext.Clients
+                .User(dto.SenderId)
+                .SendAsync("PrivateMessageDeletedForEveryone", dto);
+
+            await _hubContext.Clients
+                .User(dto.ReceiverId)
+                .SendAsync("PrivateMessageDeletedForEveryone", dto);
+        }
+        public async Task PrivateMessageReadAsync(
+    PrivateMessageNotifierDto dto)
+        {
+            await _hubContext.Clients
+                .User(dto.SenderId)
+                .SendAsync("PrivateMessageRead", dto);
         }
         public async Task SendGroupMessageAsync(GroupMessageNotifierDto message)
         {

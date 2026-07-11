@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using RealTimeChatApp.Infrastructure.Persistence.Context;
 
@@ -11,9 +12,11 @@ using RealTimeChatApp.Infrastructure.Persistence.Context;
 namespace RealTimeChatApp.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260711174728_Add Properties in Private Messages")]
+    partial class AddPropertiesinPrivateMessages
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -443,9 +446,6 @@ namespace RealTimeChatApp.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<bool>("DeletedForReceiver")
                         .HasColumnType("bit");
 
@@ -455,28 +455,16 @@ namespace RealTimeChatApp.Infrastructure.Migrations
                     b.Property<DateTime?>("EditedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<bool>("IsDeletedForEveryone")
-                        .HasColumnType("bit");
-
                     b.Property<bool>("IsEdited")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsRead")
                         .HasColumnType("bit");
 
                     b.Property<string>("MessageType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("ReadAt")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("ReceiverId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int?>("ReplyToMessageId")
-                        .HasColumnType("int");
 
                     b.Property<string>("SenderId")
                         .IsRequired()
@@ -491,8 +479,6 @@ namespace RealTimeChatApp.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("ReceiverId");
-
-                    b.HasIndex("ReplyToMessageId");
 
                     b.HasIndex("SenderId");
 
@@ -723,10 +709,6 @@ namespace RealTimeChatApp.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("RealTimeChatApp.Domain.Models.PrivateMessage", "ReplyToMessage")
-                        .WithMany()
-                        .HasForeignKey("ReplyToMessageId");
-
                     b.HasOne("RealTimeChatApp.Domain.Identity.ApplicationUser", "Sender")
                         .WithMany("SentPrivateMessages")
                         .HasForeignKey("SenderId")
@@ -734,8 +716,6 @@ namespace RealTimeChatApp.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Receiver");
-
-                    b.Navigation("ReplyToMessage");
 
                     b.Navigation("Sender");
                 });

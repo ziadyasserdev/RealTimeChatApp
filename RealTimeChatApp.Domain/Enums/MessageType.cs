@@ -12,6 +12,7 @@ namespace RealTimeChatApp.Domain.Enums
         Image,
         File,
         Voice,
-        Video
+        Video,
+        Deleted
     }
 }

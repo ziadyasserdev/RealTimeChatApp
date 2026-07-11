@@ -1,4 +1,5 @@
-﻿using RealTimeChatApp.Domain.Identity;
+﻿using RealTimeChatApp.Domain.Enums;
+using RealTimeChatApp.Domain.Identity;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -18,10 +19,12 @@ namespace RealTimeChatApp.Domain.Models
         public string ReceiverId { get; set; } = null!;
 
         public string Content { get; set; } = null!;
+        public bool IsDeletedForEveryone { get; set; }
 
-        public string MessageType { get; set; }
+        public DateTime? DeletedAt { get; set; }
 
-        public Guid? ReplyToMessageId { get; set; }
+        public MessageType MessageType { get; set; }
+
 
         public bool IsEdited { get; set; }
 
@@ -32,9 +35,13 @@ namespace RealTimeChatApp.Domain.Models
         public bool DeletedForSender { get; set; }
 
         public bool DeletedForReceiver { get; set; }
+        public bool IsRead { get; set; }
 
+        public DateTime? ReadAt { get; set; }
         // Navigation
+        public int? ReplyToMessageId { get; set; }
 
+        public PrivateMessage? ReplyToMessage { get; set; }
         public ApplicationUser Sender { get; set; } = null!;
 
         public ApplicationUser Receiver { get; set; } = null!;
