@@ -39,6 +39,7 @@ namespace RealTimeChatApp.Domain.Models
 
         public ApplicationUser Receiver { get; set; } = null!;
 
-       
+        public ICollection<Reaction> Reactions { get; set; }
+     = new List<Reaction>();
     }
 }

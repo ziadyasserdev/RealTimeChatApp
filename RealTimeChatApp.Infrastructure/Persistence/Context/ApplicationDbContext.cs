@@ -23,6 +23,7 @@ namespace RealTimeChatApp.Infrastructure.Persistence.Context
         }
         public DbSet<RealTimeChatApp.Domain.Models.Group> Groups { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }
+        public DbSet<Reaction> Reactions { get; set; }
         public DbSet<GroupMessage> GroupMessages { get; set; }
         public DbSet<GroupMessageRead> GroupMessageReads { get; set; }
         public DbSet<PrivateMessage> PrivateMessages { get; set; }

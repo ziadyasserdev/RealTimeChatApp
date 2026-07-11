@@ -14,6 +14,7 @@ namespace RealTimeChatApp.Application.Contracts.Repositories
         IPrivateMessageRepository PrivateMessages { get; }
         IUserConnectionRepository UserConnections { get; }
         IGroupRepository Groups { get; }
+        IReactionRepository Reactions { get; }
         IGroupMessageRepository GroupMessages { get; }
         Task<IDbContextTransaction> BeginTransactionAsync();
         Task<int> SaveAsync();

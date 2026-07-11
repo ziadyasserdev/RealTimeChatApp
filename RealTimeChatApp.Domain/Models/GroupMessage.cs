@@ -43,7 +43,8 @@ namespace RealTimeChatApp.Domain.Models
       
         public ICollection<GroupMessageRead> Reads { get; set; } = new List<GroupMessageRead>();
 
-       
+        public ICollection<Reaction> Reactions { get; set; }
+     = new List<Reaction>();
 
     }
 }

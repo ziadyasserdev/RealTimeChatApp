@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore.Storage;
 using RealTimeChatApp.Application.Contracts.Repositories;
+using RealTimeChatApp.Domain.Models;
 using RealTimeChatApp.Infrastructure.Persistence.Context;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,7 @@ namespace RealTimeChatApp.Infrastructure.Respositories
         public UnitOfWork(ApplicationDbContext _context)
         {
             this._context = _context;
+            Reactions = new ReactionRepository(_context);
             GroupMembers = new GroupMemberRepository(_context);
             GroupMessageReads = new GroupMessageReadRepository(_context);
             PrivateMessages = new PrivateMessageRepository(_context);
@@ -33,6 +35,8 @@ namespace RealTimeChatApp.Infrastructure.Respositories
         public IGroupRepository Groups { get; private set; }
 
         public IGroupMessageRepository GroupMessages { get; private set; }
+
+        public IReactionRepository Reactions { get; private set; }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {

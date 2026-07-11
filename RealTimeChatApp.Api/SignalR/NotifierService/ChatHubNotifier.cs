@@ -2,6 +2,7 @@
 using RealTimeChatApp.Api.Hubs;
 using RealTimeChatApp.Application.Features.GroupMessages.Dtos;
 using RealTimeChatApp.Application.Features.Groups.Dtos;
+using RealTimeChatApp.Application.Features.Reactions.Dtos;
 
 namespace RealTimeChatApp.Api.SignalR.NotifierService
 {
@@ -13,6 +14,13 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
         public ChatHubNotifier(IHubContext<ChatHub> hubContext)
         {
             _hubContext = hubContext;
+        }
+        public async Task ReactionChangedAsync(
+    ReactionNotifierDto dto)
+        {
+            await _hubContext.Clients
+                .Group($"group-{dto.GroupId}")
+                .SendAsync("ReactionChanged", dto);
         }
         public async Task MessageReadAsync(
     MessageReadNotifierDto dto)

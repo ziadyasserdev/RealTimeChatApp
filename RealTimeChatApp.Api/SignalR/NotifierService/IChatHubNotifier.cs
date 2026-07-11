@@ -1,5 +1,6 @@
 ﻿using RealTimeChatApp.Application.Features.GroupMessages.Dtos;
 using RealTimeChatApp.Application.Features.Groups.Dtos;
+using RealTimeChatApp.Application.Features.Reactions.Dtos;
 
 namespace RealTimeChatApp.Api.SignalR.NotifierService
 {
@@ -9,6 +10,7 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
         Task MessagePinnedAsync(MessagePinnedNotifierDto dto);
         Task MessageUnPinnedAsync(MessageUnPinnedNotifierDto dto);
         Task MessageReadAsync(MessageReadNotifierDto dto);
+        Task ReactionChangedAsync(ReactionNotifierDto dto);
         Task UserJoinedGroupAsync(int groupId, string userName);
         Task MessageDeletedAsync(MessageDeletedNotifierDto dto);
         Task UserLeftGroupAsync(int groupId, string userName);
