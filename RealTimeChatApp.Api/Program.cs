@@ -1,9 +1,11 @@
+using Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using RealTimeChatApp.Api.Hubs;
+using RealTimeChatApp.Api.Jobs;
 using RealTimeChatApp.Api.Middleware;
 using RealTimeChatApp.Api.SignalR.NotifierService;
 using RealTimeChatApp.Api.SignalR.Services;
@@ -33,7 +35,7 @@ namespace RealTimeChatApp.Api
 
             builder.Services.AddScoped<IChatHubNotifier, ChatHubNotifier>();
 
-
+            builder.Services.AddScoped<IStoryExpirationJob, StoryExpirationJob>();
 
 
             builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
@@ -121,6 +123,11 @@ namespace RealTimeChatApp.Api
 
             });
 
+            builder.Services.AddHangfire(config =>
+    config.UseSqlServerStorage(
+        builder.Configuration.GetConnectionString("DBConn")));
+
+            builder.Services.AddHangfireServer();
 
             builder.Services.AddCors(options =>
             {
@@ -163,7 +170,12 @@ namespace RealTimeChatApp.Api
             app.MapHub<ChatHub>("/ChatHub");
             app.UseStaticFiles();
             app.MapControllers();
-         
+            app.UseHangfireDashboard();
+
+            RecurringJob.AddOrUpdate<IStoryExpirationJob>(
+                "DeleteExpiredStories",
+                job => job.ExecuteAsync(CancellationToken.None),
+                Cron.Hourly);
 
             app.Run();
         }

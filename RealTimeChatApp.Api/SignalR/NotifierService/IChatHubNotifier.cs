@@ -34,6 +34,8 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
 
         Task StoryViewedAsync(int storyId, string viewerId);
         Task StoryDeletedAsync(StoryDeletedNotifierDto dto);
+      
+
     }
-   
+
 }
