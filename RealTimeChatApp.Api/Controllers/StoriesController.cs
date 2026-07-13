@@ -9,6 +9,7 @@ using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateTextStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateVideoStory;
+using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryFeed;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -77,6 +78,17 @@ namespace RealTimeChatApp.Api.Controllers
             {
                 await chatHubNotifier.StoryCreatedAsync(result.Value!);
             }
+
+            return result.ToActionResult();
+        }
+        [HttpGet("feed")]
+        [SwaggerOperation(
+    Summary = "Get story feed",
+    Description = "Retrieves all active stories from the authenticated user's contacts. Expired stories are excluded from the feed."
+)]
+        public async Task<IActionResult> GetFeed()
+        {
+            var result = await mediator.Send(new GetStoryFeedQuery());
 
             return result.ToActionResult();
         }
