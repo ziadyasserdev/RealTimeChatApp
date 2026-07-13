@@ -18,4 +18,9 @@
     <ProjectReference Include="..\RealTimeChatApp.Domain\RealTimeChatApp.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Features\Users\Dtos\" />
+    <Folder Include="Features\Users\Queries\" />
+  </ItemGroup>
+
 </Project>

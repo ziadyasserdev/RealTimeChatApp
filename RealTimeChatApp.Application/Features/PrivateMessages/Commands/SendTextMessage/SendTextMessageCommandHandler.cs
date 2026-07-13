@@ -52,6 +52,23 @@ namespace RealTimeChatApp.Application.Features.PrivateMessages.Commands.SendText
                     ResultStatus.Failure,
                     "You cannot send a message to yourself.");
             }
+            var isBlocked = await _unitOfWork.UserBlocks.Query()
+    .AnyAsync(x =>
+        (x.BlockerId == request.ReceiverId &&
+         x.BlockedUserId == senderId)
+      ||
+        (x.BlockerId == senderId &&
+         x.BlockedUserId == request.ReceiverId),
+        cancellationToken);
+            if (isBlocked) 
+                {
+                return Result<PrivateMessageNotifierDto>.Failure(
+                    ResultStatus.Conflict,
+                    "You cannot send messages because one of the users has blocked the other.");
+            }
+
+
+
 
             var receiver = await _userManager.FindByIdAsync(request.ReceiverId);
 

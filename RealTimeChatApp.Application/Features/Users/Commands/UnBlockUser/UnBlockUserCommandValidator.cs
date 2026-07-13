@@ -5,12 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.Users.Commands.BlockUser
+namespace RealTimeChatApp.Application.Features.Users.Commands.UnBlockUser
 {
-    public class BlockUserCommandValidator
-       : AbstractValidator<BlockUserCommand>
+    public class UnBlockUserCommandValidator
+     : AbstractValidator<UnBlockUserCommand>
     {
-        public BlockUserCommandValidator()
+        public UnBlockUserCommandValidator()
         {
             RuleFor(x => x.UserId)
                 .NotEmpty();

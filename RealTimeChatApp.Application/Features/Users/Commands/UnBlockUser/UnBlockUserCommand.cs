@@ -6,9 +6,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.Users.Commands.BlockUser
+namespace RealTimeChatApp.Application.Features.Users.Commands.UnBlockUser
 {
-    public record BlockUserCommand(
-      string UserId
-  ) : IRequest<Result<string>>;
+    public record UnBlockUserCommand(
+     string UserId
+ ) : IRequest<Result<string>>;
 }

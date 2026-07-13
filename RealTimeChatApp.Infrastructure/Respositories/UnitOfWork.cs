@@ -17,6 +17,7 @@ namespace RealTimeChatApp.Infrastructure.Respositories
         {
             this._context = _context;
             Reactions = new ReactionRepository(_context);
+            UserBlocks = new UserBlockRepository(_context);
             GroupMembers = new GroupMemberRepository(_context);
             GroupMessageReads = new GroupMessageReadRepository(_context);
             PrivateMessages = new PrivateMessageRepository(_context);
@@ -37,6 +38,8 @@ namespace RealTimeChatApp.Infrastructure.Respositories
         public IGroupMessageRepository GroupMessages { get; private set; }
 
         public IReactionRepository Reactions { get; private set; }
+
+        public IUserBlockRepository UserBlocks {  get; private set; }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {
