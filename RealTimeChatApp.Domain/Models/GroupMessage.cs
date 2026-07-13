@@ -25,8 +25,12 @@ namespace RealTimeChatApp.Domain.Models
 
         public int? ReplyToMessageId { get; set; }
 
-    
 
+        public bool IsForwarded { get; set; }
+
+        public string? ForwardedFromUserId { get; set; }
+
+      
         public bool IsPinned { get; set; }
 
         public bool IsEdited { get; set; }
@@ -40,7 +44,7 @@ namespace RealTimeChatApp.Domain.Models
         public Group Group { get; set; } = null!;
         public GroupMessage? ReplyToMessage { get; set; }
         public ApplicationUser Sender { get; set; } = null!;
-      
+        public ApplicationUser? ForwardedFromUser { get; set; }
         public ICollection<GroupMessageRead> Reads { get; set; } = new List<GroupMessageRead>();
 
         public ICollection<Reaction> Reactions { get; set; }

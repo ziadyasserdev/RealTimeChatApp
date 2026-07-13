@@ -33,7 +33,11 @@ namespace RealTimeChatApp.Domain.Models
         public DateTime SentAt { get; set; } = DateTime.Now;
 
         public bool DeletedForSender { get; set; }
+        public bool IsForwarded { get; set; }
 
+        public string? ForwardedFromUserId { get; set; }
+
+      
         public bool DeletedForReceiver { get; set; }
         public bool IsRead { get; set; }
 
@@ -43,6 +47,7 @@ namespace RealTimeChatApp.Domain.Models
 
         public PrivateMessage? ReplyToMessage { get; set; }
         public ApplicationUser Sender { get; set; } = null!;
+        public ApplicationUser? ForwardedFromUser { get; set; }
 
         public ApplicationUser Receiver { get; set; } = null!;
 
