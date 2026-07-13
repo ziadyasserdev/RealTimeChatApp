@@ -159,7 +159,13 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
                 .Group($"group-{groupId}")
                 .SendAsync("UserJoinedGroup", userName);
         }
-
+        public async Task StoryDeletedAsync(
+    StoryDeletedNotifierDto dto)
+        {
+            await _hubContext.Clients.All.SendAsync(
+                "StoryDeleted",
+                dto);
+        }
         public async Task UserLeftGroupAsync(int groupId, string userName)
         {
             await _hubContext.Clients

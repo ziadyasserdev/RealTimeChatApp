@@ -9,6 +9,7 @@ using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateTextStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateVideoStory;
+using RealTimeChatApp.Application.Features.Stories.Commands.DeleteStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.ViewStory;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryFeed;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryViewers;
@@ -114,6 +115,41 @@ namespace RealTimeChatApp.Api.Controllers
         public async Task<IActionResult> GetStoryViewers(int storyId)
         {
             var result = await mediator.Send(new GetStoryViewersQuery(storyId));
+
+            return result.ToActionResult();
+        }
+        [HttpDelete("{storyId}")]
+        [SwaggerOperation(
+    Summary = "Delete story",
+    Description = "Deletes the specified story if it belongs to the authenticated user and notifies connected clients in real time using SignalR."
+)]
+        public async Task<IActionResult> DeleteStory(int storyId)
+        {
+            var result = await mediator.Send(
+                new DeleteStoryCommand(storyId));
+
+            if (result.IsSuccess)
+            {
+                await chatHubNotifier.StoryDeletedAsync(
+                    result.Value!);
+            }
+
+            return result.ToActionResult();
+        }
+        [HttpDelete("{storyId}")]
+        [SwaggerOperation(
+    Summary = "Delete story",
+    Description = "Deletes the specified story owned by the authenticated user and notifies connected clients in real time using SignalR."
+)]
+        public async Task<IActionResult> Deletestory(int storyId)
+        {
+            var result = await mediator.Send(
+                new DeleteStoryCommand(storyId));
+
+            if (result.IsSuccess)
+            {
+                await chatHubNotifier.StoryDeletedAsync(result.Value!);
+            }
 
             return result.ToActionResult();
         }
