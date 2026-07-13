@@ -29,5 +29,7 @@ namespace RealTimeChatApp.Infrastructure.Persistence.Context
         public DbSet<PrivateMessage> PrivateMessages { get; set; }
         public DbSet<UserConnection> UserConnections { get; set; }
         public DbSet<UserBlock> UserBlocks { get; set; }
+        public DbSet<Story> Stories { get; set; }
+        public DbSet<StoryView> StoryViews { get; set; }
         }
 }
