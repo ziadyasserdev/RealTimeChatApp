@@ -5,18 +5,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.PrivateMessages.Commands.SearchPrivateMessages
+namespace RealTimeChatApp.Application.Features.GroupMessages.Queries.SearchGroupMessages
 {
-    public  class SearchPrivateMessagesQueryValidator
-    : AbstractValidator<SearchPrivateMessagesQuery>
+    public  class SearchGroupMessagesQueryValidator
+     : AbstractValidator<SearchGroupMessagesQuery>
     {
-        public SearchPrivateMessagesQueryValidator()
+        public SearchGroupMessagesQueryValidator()
         {
-            RuleFor(x => x.UserId)
-                .NotEmpty()
-                .WithMessage("UserId is required.")
-                .MaximumLength(450)
-                .WithMessage("UserId cannot exceed 450 characters.");
+            RuleFor(x => x.GroupId)
+                .GreaterThan(0)
+                .WithMessage("GroupId must be greater than 0.");
 
             RuleFor(x => x.Keyword)
                 .NotEmpty()

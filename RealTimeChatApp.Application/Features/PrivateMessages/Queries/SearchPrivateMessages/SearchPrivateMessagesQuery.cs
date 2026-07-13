@@ -7,10 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.PrivateMessages.Commands.SearchPrivateMessages
+namespace RealTimeChatApp.Application.Features.PrivateMessages.Queries.SearchPrivateMessages
 {
     public record SearchPrivateMessagesQuery(
-     string UserId,
-     string Keyword
- ) : IRequest<Result<List<PrivateMessageSearchDto>>>;
+    string UserId,
+    string Keyword
+) : IRequest<Result<List<PrivateMessageSearchDto>>>;
 }

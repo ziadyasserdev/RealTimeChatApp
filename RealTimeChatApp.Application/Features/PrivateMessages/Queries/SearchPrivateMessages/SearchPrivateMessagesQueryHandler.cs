@@ -10,12 +10,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.PrivateMessages.Commands.SearchPrivateMessages
+namespace RealTimeChatApp.Application.Features.PrivateMessages.Queries.SearchPrivateMessages
 {
     public class SearchPrivateMessagesQueryHandler
-        : IRequestHandler<
-            SearchPrivateMessagesQuery,
-            Result<List<PrivateMessageSearchDto>>>
+         : IRequestHandler<
+             SearchPrivateMessagesQuery,
+             Result<List<PrivateMessageSearchDto>>>
     {
 
         private readonly IUnitOfWork _unitOfWork;

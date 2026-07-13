@@ -16,7 +16,7 @@ using RealTimeChatApp.Application.Features.GroupMessages.Commands.PinMessage;
 using RealTimeChatApp.Application.Features.GroupMessages.Commands.SendTextMessage;
 using RealTimeChatApp.Application.Features.GroupMessages.Commands.UnPinMessage;
 using RealTimeChatApp.Application.Features.GroupMessages.Queries.GetMessageReaders;
-
+using RealTimeChatApp.Application.Features.GroupMessages.Queries.SearchGroupMessages;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -238,6 +238,24 @@ namespace RealTimeChatApp.Api.Controllers
                 await chatHubNotifier
                     .SendGroupMessageAsync(result.Value!);
             }
+
+
+            return result.ToActionResult();
+        }
+        [HttpGet("{groupId}/search")]
+        [SwaggerOperation(
+    Summary = "Search group messages",
+    Description = "Searches messages inside a group."
+)]
+        public async Task<IActionResult> SearchMessages(
+    int groupId,
+    [FromQuery] string keyword)
+        {
+
+            var result = await mediator.Send(
+                new SearchGroupMessagesQuery(
+                    groupId,
+                    keyword));
 
 
             return result.ToActionResult();

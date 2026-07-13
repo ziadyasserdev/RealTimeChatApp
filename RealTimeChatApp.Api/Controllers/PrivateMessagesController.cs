@@ -11,10 +11,10 @@ using RealTimeChatApp.Application.Features.PrivateMessages.Commands.EditMessage;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.ForwardMessage.ForwardPrivateMessageToUser;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.ForwardPrivateMessageToGroup;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.MarkAsRead;
-using RealTimeChatApp.Application.Features.PrivateMessages.Commands.SearchPrivateMessages;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.SendTextMessage;
 using RealTimeChatApp.Application.Features.PrivateMessages.Queries.GetChats;
 using RealTimeChatApp.Application.Features.PrivateMessages.Queries.GetConversation;
+using RealTimeChatApp.Application.Features.PrivateMessages.Queries.SearchPrivateMessages;
 using RealTimeChatApp.Application.Features.Reactions.Commands.ReactToPrivateMessage;
 using Swashbuckle.AspNetCore.Annotations;
 
