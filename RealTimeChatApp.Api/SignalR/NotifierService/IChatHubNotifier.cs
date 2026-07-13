@@ -2,6 +2,7 @@
 using RealTimeChatApp.Application.Features.Groups.Dtos;
 using RealTimeChatApp.Application.Features.PrivateMessages.Dtos;
 using RealTimeChatApp.Application.Features.Reactions.Dtos;
+using RealTimeChatApp.Application.Features.Stories.Dtos;
 
 namespace RealTimeChatApp.Api.SignalR.NotifierService
 {
@@ -27,6 +28,11 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
         Task MessageEditedAsync(EditGroupMessageNotifierDto message);
         Task PrivateReactionChangedAsync(
     ReactionNotifierDto dto);
+        Task StoryCreatedAsync(StoryNotifierDto dto);
+
+        Task StoryDeletedAsync(int storyId);
+
+        Task StoryViewedAsync(int storyId, string viewerId);
     }
    
 }

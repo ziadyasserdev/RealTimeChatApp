@@ -1,20 +1,23 @@
 ﻿using RealTimeChatApp.Domain.Enums;
-using RealTimeChatApp.Domain.Identity;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Domain.Models
+namespace RealTimeChatApp.Application.Features.Stories.Dtos
 {
-    public class Story : BaseEntity
+    public sealed class StoryNotifierDto
     {
+        public int StoryId { get; set; }
+
         public string UserId { get; set; } = null!;
 
-        public string? MediaUrl { get; set; }
+        public string UserName { get; set; } = null!;
 
-        public StoryType Type { get; set; }
+        public StoryType StoryType { get; set; }
+
+        public string? MediaUrl { get; set; }
 
         public string? Caption { get; set; }
 
@@ -27,10 +30,5 @@ namespace RealTimeChatApp.Domain.Models
         public DateTime CreatedAt { get; set; }
 
         public DateTime ExpiresAt { get; set; }
-
-        public ApplicationUser User { get; set; } = null!;
-
-        public ICollection<StoryView> Views { get; set; }
-            = new List<StoryView>();
     }
 }

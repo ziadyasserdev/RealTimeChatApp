@@ -5,7 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using RealTimeChatApp.Application.Contracts.Identity;
 using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Contracts.Services;
+using RealTimeChatApp.Application.Contracts.Storage;
+using RealTimeChatApp.Application.Settings;
 using RealTimeChatApp.Domain.Identity;
+using RealTimeChatApp.Infrastructure.ExternalServices;
 using RealTimeChatApp.Infrastructure.Identity;
 using RealTimeChatApp.Infrastructure.Persistence.Context;
 using RealTimeChatApp.Infrastructure.Respositories;
@@ -40,10 +43,10 @@ namespace RealTimeChatApp.Infrastructure.Extensions
            ;
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
-            //// تسجيل IHttpContextAccessor
+            services.AddScoped<IFileStorageService, CloudinaryStorageService>();
             services.AddScoped<IFileService, FileService>();
-            //services.AddScoped<IMediaService, MediaService>();
-            //services.AddScoped<IEmailService, EmailService>();
+            services.Configure<CloudinarySettings>(
+      configuration.GetSection(CloudinarySettings.SectionName));
             services.AddScoped<IAuthService, AuthService>();
             //services.AddScoped<IVideoProcessingService, VideoProcessingService>();
             return services;

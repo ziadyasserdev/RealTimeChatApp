@@ -4,6 +4,7 @@ using RealTimeChatApp.Application.Features.GroupMessages.Dtos;
 using RealTimeChatApp.Application.Features.Groups.Dtos;
 using RealTimeChatApp.Application.Features.PrivateMessages.Dtos;
 using RealTimeChatApp.Application.Features.Reactions.Dtos;
+using RealTimeChatApp.Application.Features.Stories.Dtos;
 
 namespace RealTimeChatApp.Api.SignalR.NotifierService
 {
@@ -122,6 +123,34 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
             await _hubContext.Clients
                 .Users(dto.SenderId, dto.ReceiverId)
                 .SendAsync("PrivateReactionChanged", dto);
+        }
+        public async Task StoryCreatedAsync(
+    StoryNotifierDto dto)
+        {
+            await _hubContext.Clients.All.SendAsync(
+                "StoryCreated",
+                dto);
+        }
+
+        public async Task StoryDeletedAsync(
+            int storyId)
+        {
+            await _hubContext.Clients.All.SendAsync(
+                "StoryDeleted",
+                storyId);
+        }
+
+        public async Task StoryViewedAsync(
+            int storyId,
+            string viewerId)
+        {
+            await _hubContext.Clients.All.SendAsync(
+                "StoryViewed",
+                new
+                {
+                    StoryId = storyId,
+                    ViewerId = viewerId
+                });
         }
 
         public async Task UserJoinedGroupAsync(int groupId, string userName)
