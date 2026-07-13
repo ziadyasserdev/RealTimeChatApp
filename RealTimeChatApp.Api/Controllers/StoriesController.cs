@@ -9,6 +9,7 @@ using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateTextStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateVideoStory;
+using RealTimeChatApp.Application.Features.Stories.Commands.ViewStory;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryFeed;
 using Swashbuckle.AspNetCore.Annotations;
 
@@ -89,6 +90,17 @@ namespace RealTimeChatApp.Api.Controllers
         public async Task<IActionResult> GetFeed()
         {
             var result = await mediator.Send(new GetStoryFeedQuery());
+
+            return result.ToActionResult();
+        }
+        [HttpPost("{storyId}/view")]
+        [SwaggerOperation(
+    Summary = "View story",
+    Description = "Marks a story as viewed by the authenticated user. A view is recorded only once per user."
+)]
+        public async Task<IActionResult> ViewStory(int storyId)
+        {
+            var result = await mediator.Send(new ViewStoryCommand(storyId));
 
             return result.ToActionResult();
         }
