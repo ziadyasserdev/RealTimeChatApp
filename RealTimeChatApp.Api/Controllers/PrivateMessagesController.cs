@@ -11,6 +11,7 @@ using RealTimeChatApp.Application.Features.PrivateMessages.Commands.EditMessage;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.ForwardMessage.ForwardPrivateMessageToUser;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.ForwardPrivateMessageToGroup;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.MarkAsRead;
+using RealTimeChatApp.Application.Features.PrivateMessages.Commands.SearchPrivateMessages;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.SendTextMessage;
 using RealTimeChatApp.Application.Features.PrivateMessages.Queries.GetChats;
 using RealTimeChatApp.Application.Features.PrivateMessages.Queries.GetConversation;
@@ -224,6 +225,24 @@ namespace RealTimeChatApp.Api.Controllers
                 await chatHubNotifier
                     .SendGroupMessageAsync(result.Value!);
             }
+
+
+            return result.ToActionResult();
+        }
+        [HttpGet("search")]
+        [SwaggerOperation(
+    Summary = "Search private messages",
+    Description = "Searches messages inside a private conversation."
+)]
+        public async Task<IActionResult> SearchMessages(
+    [FromQuery] string userId,
+    [FromQuery] string keyword)
+        {
+
+            var result = await mediator.Send(
+                new SearchPrivateMessagesQuery(
+                    userId,
+                    keyword));
 
 
             return result.ToActionResult();
