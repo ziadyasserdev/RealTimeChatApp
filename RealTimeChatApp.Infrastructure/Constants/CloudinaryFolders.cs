@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace RealTimeChatApp.Infrastructure.Constants
 {
-    public static class CloudinaryFolders
-    {
-        public const string Stories = "stories";
+    //public static class CloudinaryFolders
+    //{
+    //    public const string Stories = "stories";
 
-        public const string Profiles = "profiles";
+    //    public const string Profiles = "profiles";
 
-        public const string Groups = "groups";
-    }
+    //    public const string Groups = "groups";
+    //}
 }
