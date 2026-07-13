@@ -6,6 +6,7 @@ using RealTimeChatApp.Api.SignalR.NotifierService;
 using RealTimeChatApp.Application.Contracts.Identity;
 using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.Reactions.Commands.ReactToGroupMessage;
+using RealTimeChatApp.Application.Features.Reactions.Commands.ReactToPrivateMessage;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -51,6 +52,33 @@ namespace RealTimeChatApp.Api.Controllers
             if (result.IsSuccess)
             {
                 await chatHubNotifier.ReactionChangedAsync(result.Value!);
+            }
+
+            return result.ToActionResult();
+        }
+        [HttpPost("{messageId}/reaction")]
+        [SwaggerOperation(
+Summary = "React to private message",
+Description = "Adds or updates a reaction on a private message."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ReactToMessage(
+int messageId,
+[FromBody] ReactToPrivateMessageCommand command)
+        {
+            var result = await mediator.Send(
+                command with
+                {
+                    MessageId = messageId
+                });
+
+            if (result.IsSuccess)
+            {
+                await chatHubNotifier
+                    .PrivateReactionChangedAsync(result.Value!);
             }
 
             return result.ToActionResult();

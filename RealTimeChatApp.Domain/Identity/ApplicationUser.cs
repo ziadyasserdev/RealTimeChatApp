@@ -32,7 +32,11 @@ namespace RealTimeChatApp.Domain.Identity
         public ICollection<GroupMessage> GroupMessages { get; set; } = new List<GroupMessage>();
 
         public ICollection<PrivateMessage> SentPrivateMessages { get; set; } = new List<PrivateMessage>();
+        public ICollection<UserBlock> BlockedUsers { get; set; }
+    = new List<UserBlock>();
 
+        public ICollection<UserBlock> BlockedByUsers { get; set; }
+            = new List<UserBlock>();
         public ICollection<PrivateMessage> ReceivedPrivateMessages { get; set; } = new List<PrivateMessage>();
     }
 }

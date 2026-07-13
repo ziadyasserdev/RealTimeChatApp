@@ -182,32 +182,6 @@ namespace RealTimeChatApp.Api.Controllers
 
             return result.ToActionResult();
         }
-        [HttpPost("{messageId}/reaction")]
-        [SwaggerOperation(
-    Summary = "React to private message",
-    Description = "Adds or updates a reaction on a private message."
-)]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-        [ProducesResponseType(StatusCodes.Status403Forbidden)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> ReactToMessage(
-    int messageId,
-    [FromBody] ReactToPrivateMessageCommand command)
-        {
-            var result = await mediator.Send(
-                command with
-                {
-                    MessageId = messageId
-                });
-
-            if (result.IsSuccess)
-            {
-                await chatHubNotifier
-                    .PrivateReactionChangedAsync(result.Value!);
-            }
-
-            return result.ToActionResult();
-        }
+    
     }
 }

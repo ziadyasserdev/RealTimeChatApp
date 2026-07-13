@@ -28,5 +28,6 @@ namespace RealTimeChatApp.Infrastructure.Persistence.Context
         public DbSet<GroupMessageRead> GroupMessageReads { get; set; }
         public DbSet<PrivateMessage> PrivateMessages { get; set; }
         public DbSet<UserConnection> UserConnections { get; set; }
-    }
+        public DbSet<UserBlock> UserBlocks { get; set; }
+        }
 }
