@@ -32,5 +32,10 @@ namespace RealTimeChatApp.Application.Features.GroupMessages.Dtos
         public string? ReplyContent { get; set; }
 
         public string? ReplySenderName { get; set; }
+        public bool IsForwarded { get; set; }
+
+        public string? ForwardedFromUserId { get; set; }
+
+        public string? ForwardedFromUserName { get; set; }
     }
 }

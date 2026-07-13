@@ -8,6 +8,8 @@ using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.DeleteForMe;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.DeletePrivateMessageForEveryone;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.EditMessage;
+using RealTimeChatApp.Application.Features.PrivateMessages.Commands.ForwardMessage.ForwardPrivateMessageToUser;
+using RealTimeChatApp.Application.Features.PrivateMessages.Commands.ForwardPrivateMessageToGroup;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.MarkAsRead;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.SendTextMessage;
 using RealTimeChatApp.Application.Features.PrivateMessages.Queries.GetChats;
@@ -182,6 +184,49 @@ namespace RealTimeChatApp.Api.Controllers
 
             return result.ToActionResult();
         }
-    
+        [HttpPost("{messageId}/forward/user")]
+        public async Task<IActionResult> ForwardToUser(
+        int messageId,
+        [FromBody] ForwardPrivateMessageToUserCommand command)
+        {
+            var result = await mediator.Send(
+                command with
+                {
+                    MessageId = messageId
+                });
+
+            if (result.IsSuccess)
+            {
+                await chatHubNotifier.SendPrivateMessageAsync(result.Value!);
+            }
+
+            return result.ToActionResult();
+        }
+        [HttpPost("{messageId}/forward/group")]
+        [SwaggerOperation(
+    Summary = "Forward private message to group",
+    Description = "Forwards a private message to a group."
+)]
+        public async Task<IActionResult> ForwardToGroup(
+    int messageId,
+    [FromBody] ForwardPrivateMessageToGroupCommand command)
+        {
+
+            var result = await mediator.Send(
+                command with
+                {
+                    MessageId = messageId
+                });
+
+
+            if (result.IsSuccess)
+            {
+                await chatHubNotifier
+                    .SendGroupMessageAsync(result.Value!);
+            }
+
+
+            return result.ToActionResult();
+        }
     }
 }

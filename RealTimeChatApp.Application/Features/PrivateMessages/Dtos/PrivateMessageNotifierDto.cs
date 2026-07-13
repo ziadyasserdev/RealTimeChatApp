@@ -28,5 +28,10 @@ namespace RealTimeChatApp.Application.Features.PrivateMessages.Dtos
         public DateTime? ReadAt { get; set; }
 
         public int? ReplyToMessageId { get; set; }
+        public bool IsForwarded { get; set; }
+
+        public string? ForwardedFromUserId { get; set; }
+
+        public string? ForwardedFromUserName { get; set; }
     }
 }

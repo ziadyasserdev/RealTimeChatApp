@@ -9,11 +9,14 @@ using RealTimeChatApp.Application.Contracts.Identity;
 using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.GroupMessages.Commands.DeleteMessage;
 using RealTimeChatApp.Application.Features.GroupMessages.Commands.EditGroupMessage;
+using RealTimeChatApp.Application.Features.GroupMessages.Commands.ForwardGroupMessageToGroup;
+using RealTimeChatApp.Application.Features.GroupMessages.Commands.ForwardGroupMessageToUser;
 using RealTimeChatApp.Application.Features.GroupMessages.Commands.MarkAsRead;
 using RealTimeChatApp.Application.Features.GroupMessages.Commands.PinMessage;
 using RealTimeChatApp.Application.Features.GroupMessages.Commands.SendTextMessage;
 using RealTimeChatApp.Application.Features.GroupMessages.Commands.UnPinMessage;
 using RealTimeChatApp.Application.Features.GroupMessages.Queries.GetMessageReaders;
+
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -186,6 +189,56 @@ namespace RealTimeChatApp.Api.Controllers
         {
             var result = await mediator.Send(
                 new GetMessageReadersQuery(messageId));
+
+            return result.ToActionResult();
+        }
+        [HttpPost("{messageId}/forward/user")]
+        [SwaggerOperation(
+    Summary = "Forward group message to user",
+    Description = "Forwards a group message to another user."
+)]
+        public async Task<IActionResult> ForwardToUser(
+    int messageId,
+    [FromBody] ForwardGroupMessageToUserCommand command)
+        {
+            var result = await mediator.Send(
+                command with
+                {
+                    MessageId = messageId
+                });
+
+
+            if (result.IsSuccess)
+            {
+                await chatHubNotifier
+                    .SendPrivateMessageAsync(result.Value!);
+            }
+
+
+            return result.ToActionResult();
+        }
+        [HttpPost("{messageId}/forward/group")]
+        [SwaggerOperation(
+    Summary = "Forward group message to group",
+    Description = "Forwards a group message to another group."
+)]
+        public async Task<IActionResult> ForwardToGroup(
+    int messageId,
+    [FromBody] ForwardGroupMessageToGroupCommand command)
+        {
+            var result = await mediator.Send(
+                command with
+                {
+                    MessageId = messageId
+                });
+
+
+            if (result.IsSuccess)
+            {
+                await chatHubNotifier
+                    .SendGroupMessageAsync(result.Value!);
+            }
+
 
             return result.ToActionResult();
         }
