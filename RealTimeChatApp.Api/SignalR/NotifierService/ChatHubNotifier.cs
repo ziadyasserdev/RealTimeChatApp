@@ -102,6 +102,7 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
                 .User(dto.ReceiverId)
                 .SendAsync("PrivateMessageDeletedForEveryone", dto);
         }
+  
         public async Task PrivateMessageReadAsync(
     PrivateMessageNotifierDto dto)
         {
@@ -114,6 +115,13 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
             await _hubContext.Clients
                 .Group($"group-{message.GroupId}")
                 .SendAsync("ReceiveGroupMessage", message);
+        }
+        public async Task PrivateReactionChangedAsync(
+    ReactionNotifierDto dto)
+        {
+            await _hubContext.Clients
+                .Users(dto.SenderId, dto.ReceiverId)
+                .SendAsync("PrivateReactionChanged", dto);
         }
 
         public async Task UserJoinedGroupAsync(int groupId, string userName)

@@ -11,17 +11,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace RealTimeChatApp.Application.Features.Reactions.Commands.ReactToGroupMessage
+namespace RealTimeChatApp.Application.Features.Reactions.Commands.ReactToPrivateMessage
 {
-    public class ReactToGroupMessageCommandHandler
-    : IRequestHandler<
-        ReactToGroupMessageCommand,
-        Result<ReactionNotifierDto>>
+    public class ReactToPrivateMessageCommandHandler
+      : IRequestHandler<
+          ReactToPrivateMessageCommand,
+          Result<ReactionNotifierDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUser;
 
-        public ReactToGroupMessageCommandHandler(
+        public ReactToPrivateMessageCommandHandler(
             IUnitOfWork unitOfWork,
             ICurrentUserService currentUser)
         {
@@ -30,7 +30,7 @@ namespace RealTimeChatApp.Application.Features.Reactions.Commands.ReactToGroupMe
         }
 
         public async Task<Result<ReactionNotifierDto>> Handle(
-            ReactToGroupMessageCommand request,
+            ReactToPrivateMessageCommand request,
             CancellationToken cancellationToken)
         {
             if (!_currentUser.IsAuthenticated)
@@ -42,10 +42,9 @@ namespace RealTimeChatApp.Application.Features.Reactions.Commands.ReactToGroupMe
 
             var userId = _currentUser.UserId!;
 
-            var message = await _unitOfWork.GroupMessages
+            var message = await _unitOfWork.PrivateMessages
                 .Query()
-                .Include(x => x.Group)
-                .Include(x => x.Sender)
+                .Include(x => x.Reactions)
                 .FirstOrDefaultAsync(
                     x => x.Id == request.MessageId,
                     cancellationToken);
@@ -57,26 +56,23 @@ namespace RealTimeChatApp.Application.Features.Reactions.Commands.ReactToGroupMe
                     "Message not found.");
             }
 
-            var isMember = await _unitOfWork.GroupMembers
-                .Query()
-                .AnyAsync(x =>
-                    x.GroupId == message.GroupId &&
-                    x.UserId == userId,
-                    cancellationToken);
+            if (message.IsDeletedForEveryone)
+            {
+                return Result<ReactionNotifierDto>.Failure(
+                    ResultStatus.Conflict,
+                    "Message has been deleted.");
+            }
 
-            if (!isMember)
+            if (message.SenderId != userId &&
+                message.ReceiverId != userId)
             {
                 return Result<ReactionNotifierDto>.Failure(
                     ResultStatus.Forbidden,
-                    "You are not a member of this group.");
+                    "You are not allowed to react to this message.");
             }
 
-            var reaction = await _unitOfWork.Reactions
-                .Query()
-                .FirstOrDefaultAsync(x =>
-                    x.GroupMessageId == request.MessageId &&
-                    x.UserId == userId,
-                    cancellationToken);
+            var reaction = message.Reactions
+                .FirstOrDefault(x => x.UserId == userId);
 
             bool removed = false;
 
@@ -84,47 +80,54 @@ namespace RealTimeChatApp.Application.Features.Reactions.Commands.ReactToGroupMe
             {
                 reaction = new Reaction
                 {
-                    GroupMessageId = request.MessageId,
                     UserId = userId,
+                    PrivateMessageId = message.Id,
                     ReactionType = request.ReactionType,
-                    ReactedAt = DateTime.UtcNow,
-                    CreatedAt = DateTime.UtcNow
+                    ReactedAt = DateTime.Now,
+                    CreatedAt = DateTime.Now
                 };
 
                 await _unitOfWork.Reactions.AddAsync(reaction);
             }
             else
             {
+             
                 if (reaction.ReactionType == request.ReactionType)
                 {
                     _unitOfWork.Reactions.Delete(reaction);
+
                     removed = true;
                 }
                 else
                 {
+                   
                     reaction.ReactionType = request.ReactionType;
-                    reaction.ReactedAt = DateTime.UtcNow;
-                    reaction.ModifiedAt = DateTime.UtcNow;
-
-                    _unitOfWork.Reactions.Update(reaction);
+                    reaction.ReactedAt = DateTime.Now;
+                    reaction.ModifiedAt = DateTime.Now;
                 }
             }
 
             await _unitOfWork.SaveAsync();
 
-            var dto = new ReactionNotifierDto
-            {
-                GroupId = message.GroupId,
-                MessageId = message.Id,
-                UserId = userId,
-                UserName = _currentUser.UserName!,
-                ReactionType = request.ReactionType,
-               
-                SenderId = message.SenderId,
-                Removed = removed
-            };
+            return Result<ReactionNotifierDto>.Success(
+                new ReactionNotifierDto
+                {
+                    MessageId = message.Id,
 
-            return Result<ReactionNotifierDto>.Success(dto);
+                    UserId = userId,
+
+                    SenderId = message.SenderId,
+
+                    ReceiverId = message.ReceiverId,
+
+                    ReactionType = removed
+                        ? null
+                        : reaction.ReactionType,
+                    UserName = _currentUser.UserName!,
+                    GroupId = null,
+
+                    Removed = removed
+                });
         }
     }
 }

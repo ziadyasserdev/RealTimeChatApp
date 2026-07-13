@@ -9,15 +9,19 @@ namespace RealTimeChatApp.Application.Features.Reactions.Dtos
 {
     public class ReactionNotifierDto
     {
-        public int GroupId { get; set; }
+        public int? GroupId { get; set; }
 
         public int MessageId { get; set; }
 
         public string UserId { get; set; } = default!;
 
         public string UserName { get; set; } = default!;
+        public string SenderId { get; set; } = null!;
 
-        public ReactionType ReactionType { get; set; }
+        public string? ReceiverId { get; set; } = null!;
+
+
+        public ReactionType? ReactionType { get; set; }
 
         public bool Removed { get; set; }
     }

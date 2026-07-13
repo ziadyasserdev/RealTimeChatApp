@@ -25,7 +25,8 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
         Task MessageDeletedAsync(MessageDeletedNotifierDto dto);
         Task UserLeftGroupAsync(int groupId, string userName);
         Task MessageEditedAsync(EditGroupMessageNotifierDto message);
+        Task PrivateReactionChangedAsync(
+    ReactionNotifierDto dto);
     }
-
    
 }

@@ -10,7 +10,9 @@ using RealTimeChatApp.Application.Features.PrivateMessages.Commands.DeletePrivat
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.EditMessage;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.MarkAsRead;
 using RealTimeChatApp.Application.Features.PrivateMessages.Commands.SendTextMessage;
+using RealTimeChatApp.Application.Features.PrivateMessages.Queries.GetChats;
 using RealTimeChatApp.Application.Features.PrivateMessages.Queries.GetConversation;
+using RealTimeChatApp.Application.Features.Reactions.Commands.ReactToPrivateMessage;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -163,6 +165,46 @@ namespace RealTimeChatApp.Api.Controllers
             if (result.IsSuccess)
             {
                 await chatHubNotifier.PrivateMessageReadAsync(result.Value!);
+            }
+
+            return result.ToActionResult();
+        }
+        [HttpGet("chats")]
+        [SwaggerOperation(
+    Summary = "Get chats",
+    Description = "Returns all chats for the authenticated user with last message and unread count."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        public async Task<IActionResult> GetChats()
+        {
+            var result = await mediator.Send(new GetChatsQuery());
+
+            return result.ToActionResult();
+        }
+        [HttpPost("{messageId}/reaction")]
+        [SwaggerOperation(
+    Summary = "React to private message",
+    Description = "Adds or updates a reaction on a private message."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status403Forbidden)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ReactToMessage(
+    int messageId,
+    [FromBody] ReactToPrivateMessageCommand command)
+        {
+            var result = await mediator.Send(
+                command with
+                {
+                    MessageId = messageId
+                });
+
+            if (result.IsSuccess)
+            {
+                await chatHubNotifier
+                    .PrivateReactionChangedAsync(result.Value!);
             }
 
             return result.ToActionResult();
