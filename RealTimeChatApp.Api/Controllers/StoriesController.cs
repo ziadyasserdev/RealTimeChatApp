@@ -11,6 +11,7 @@ using RealTimeChatApp.Application.Features.Stories.Commands.CreateTextStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateVideoStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.ViewStory;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryFeed;
+using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryViewers;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -101,6 +102,18 @@ namespace RealTimeChatApp.Api.Controllers
         public async Task<IActionResult> ViewStory(int storyId)
         {
             var result = await mediator.Send(new ViewStoryCommand(storyId));
+
+            return result.ToActionResult();
+        }
+
+        [HttpGet("{storyId}/viewers")]
+        [SwaggerOperation(
+    Summary = "Get story viewers",
+    Description = "Retrieves all users who have viewed the specified story."
+)]
+        public async Task<IActionResult> GetStoryViewers(int storyId)
+        {
+            var result = await mediator.Send(new GetStoryViewersQuery(storyId));
 
             return result.ToActionResult();
         }
