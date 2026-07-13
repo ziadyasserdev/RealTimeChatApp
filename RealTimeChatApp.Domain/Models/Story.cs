@@ -13,6 +13,7 @@ namespace RealTimeChatApp.Domain.Models
         public string UserId { get; set; } = null!;
 
         public string? MediaUrl { get; set; }
+        public string? MediaPublicId { get; set; }
 
         public StoryType Type { get; set; }
 

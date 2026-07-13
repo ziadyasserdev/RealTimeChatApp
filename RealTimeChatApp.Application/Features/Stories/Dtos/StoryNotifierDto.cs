@@ -24,7 +24,7 @@ namespace RealTimeChatApp.Application.Features.Stories.Dtos
         public string? Text { get; set; }
 
         public string? BackgroundColor { get; set; }
-
+        public string? MediaPublicId { get; set; }
         public string? TextColor { get; set; }
 
         public DateTime CreatedAt { get; set; }

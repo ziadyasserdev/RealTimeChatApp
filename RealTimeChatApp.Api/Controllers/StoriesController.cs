@@ -8,6 +8,7 @@ using RealTimeChatApp.Api.SignalR.NotifierService;
 using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateTextStory;
+using RealTimeChatApp.Application.Features.Stories.Commands.CreateVideoStory;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -52,6 +53,23 @@ namespace RealTimeChatApp.Api.Controllers
 )]
         public async Task<IActionResult> CreateImageStory(
     [FromForm] CreateImageStoryCommand command)
+        {
+            var result = await mediator.Send(command);
+
+            if (result.IsSuccess)
+            {
+                await chatHubNotifier.StoryCreatedAsync(result.Value!);
+            }
+
+            return result.ToActionResult();
+        }
+        [HttpPost("video")]
+        [SwaggerOperation(
+    Summary = "Create video story",
+    Description = "Creates a new video story that is visible to the user's contacts for 24 hours. The video is uploaded to Cloudinary and connected clients are notified in real time using SignalR."
+)]
+        public async Task<IActionResult> CreateVideoStory(
+    [FromForm] CreateVideoStoryCommand command)
         {
             var result = await mediator.Send(command);
 

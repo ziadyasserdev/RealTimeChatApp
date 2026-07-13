@@ -5,6 +5,7 @@ using RealTimeChatApp.Application.Commons.Results;
 using RealTimeChatApp.Application.Contracts.Identity;
 using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Contracts.Storage;
+using RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory;
 using RealTimeChatApp.Application.Features.Stories.Dtos;
 using RealTimeChatApp.Domain.Enums;
 using RealTimeChatApp.Domain.Identity;
@@ -15,18 +16,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-
-namespace RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory
+namespace RealTimeChatApp.Application.Features.Stories.Commands.CreateVideoStory
 {
-    public class CreateImageStoryCommandHandler
-      : IRequestHandler<CreateImageStoryCommand, Result<StoryNotifierDto>>
+    public class CreateVideoStoryCommandHandler
+     : IRequestHandler<CreateVideoStoryCommand, Result<StoryNotifierDto>>
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICurrentUserService _currentUser;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IFileStorageService _fileStorage;
 
-        public CreateImageStoryCommandHandler(
+        public CreateVideoStoryCommandHandler(
             IUnitOfWork unitOfWork,
             ICurrentUserService currentUser,
             UserManager<ApplicationUser> userManager,
@@ -39,7 +39,7 @@ namespace RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory
         }
 
         public async Task<Result<StoryNotifierDto>> Handle(
-            CreateImageStoryCommand request,
+            CreateVideoStoryCommand request,
             CancellationToken cancellationToken)
         {
             if (!_currentUser.IsAuthenticated)
@@ -60,15 +60,15 @@ namespace RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory
                     "User not found.");
             }
 
-            var uploadResult = await _fileStorage.UploadImageAsync(
-                request.Image,
+            var uploadResult = await _fileStorage.UploadVideoAsync(
+                request.Video,
                 CloudinaryFolders.Stories,
                 cancellationToken);
 
             var story = new Story
             {
                 UserId = user.Id,
-                Type = StoryType.Image,
+                Type = StoryType.Video,
                 MediaUrl = uploadResult.Url,
                 MediaPublicId = uploadResult.PublicId,
                 Caption = request.Caption,
@@ -84,8 +84,8 @@ namespace RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory
             {
                 StoryId = story.Id,
                 UserId = user.Id,
-                UserName = user.DisplayName,
-                StoryType = StoryType.Image,
+                UserName = user.DisplayName!,
+                StoryType = StoryType.Video,
                 MediaUrl = story.MediaUrl,
                 MediaPublicId = story.MediaPublicId,
                 Caption = story.Caption,
