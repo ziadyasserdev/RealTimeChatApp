@@ -25,6 +25,7 @@ namespace RealTimeChatApp.Infrastructure.Respositories
             Groups = new GroupRepository(_context);
             Stories = new StoryRepository(_context);
             StoryViews = new StoryViewRepository(_context);
+            StoryReactions = new StoryReactionRepository(_context);
             GroupMessages = new GroupMessageRepository(_context);
         }
         public IGroupMemberRepository GroupMembers { get; private set; }
@@ -46,6 +47,8 @@ namespace RealTimeChatApp.Infrastructure.Respositories
         public IStoryRepository Stories { get; private set; }
 
         public IStoryViewRepository StoryViews { get; private set; }
+
+        public IStoryReactionRepository StoryReactions { get; private set; }
 
         public async Task<IDbContextTransaction> BeginTransactionAsync()
         {

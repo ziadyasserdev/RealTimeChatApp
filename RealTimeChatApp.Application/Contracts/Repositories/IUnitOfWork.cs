@@ -19,6 +19,7 @@ namespace RealTimeChatApp.Application.Contracts.Repositories
         IGroupMessageRepository GroupMessages { get; }
         IStoryRepository Stories { get; }
         IStoryViewRepository StoryViews { get; }
+        IStoryReactionRepository StoryReactions { get; }
         Task<IDbContextTransaction> BeginTransactionAsync();
         Task<int> SaveAsync();
     }
