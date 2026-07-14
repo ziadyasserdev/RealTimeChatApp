@@ -35,19 +35,6 @@ namespace RealTimeChatApp.Infrastructure.Identity
         public IEnumerable<string> Roles => httpContextAccessor.HttpContext?.User?.Claims
            .Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value) ?? Enumerable.Empty<string>();
 
-        //public bool IsDeleted
-        //{
-        //    get
-        //    {
-        //        var userId = UserId;
-        //        if (string.IsNullOrEmpty(userId))
-        //            return false;
-
-        //        var user = userManager.FindByIdAsync(userId).Result;
-        //        return user?.IsDeleted ?? false;
-        //    }
-        //}
-
         public bool IsInRole(string role)
         => Roles != null && Roles.Contains(role, StringComparer.OrdinalIgnoreCase);
     }

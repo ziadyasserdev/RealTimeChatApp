@@ -10,9 +10,12 @@ using RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateTextStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateVideoStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.DeleteStory;
+using RealTimeChatApp.Application.Features.Stories.Commands.ReactToStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.ViewStory;
+using RealTimeChatApp.Application.Features.Stories.Dtos;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryFeed;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryViewers;
+using RealTimeChatApp.Domain.Enums;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -132,6 +135,30 @@ namespace RealTimeChatApp.Api.Controllers
             if (result.IsSuccess)
             {
                 await chatHubNotifier.StoryDeletedAsync(result.Value!);
+            }
+
+            return result.ToActionResult();
+        }
+
+        [HttpPost("reaction")]
+        [SwaggerOperation(
+    Summary = "React to a story",
+    Description = "Adds a new reaction or updates the authenticated user's reaction to a story."
+)]
+        [ProducesResponseType(typeof(ApiResponse<StoryReactionNotifierDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ReactToStory([FromQuery] ReactToStoryCommand command)
+        {
+            var result = await mediator.Send(command);
+
+            if (result.IsSuccess && result.Value is not null)
+            {
+                if (result.Value.IsNewReaction)
+                    await chatHubNotifier.StoryReactionAddedAsync(result.Value);
+                else
+                    await chatHubNotifier.StoryReactionUpdatedAsync(result.Value);
             }
 
             return result.ToActionResult();

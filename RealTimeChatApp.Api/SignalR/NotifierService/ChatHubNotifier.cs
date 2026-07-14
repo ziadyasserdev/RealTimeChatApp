@@ -172,5 +172,31 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
                 .Group($"group-{groupId}")
                 .SendAsync("UserLeftGroup", userName);
         }
+
+        public async Task StoryReactionAddedAsync(
+    StoryReactionNotifierDto dto)
+        {
+            await _hubContext.Clients.All.SendAsync(
+                "StoryReactionAdded",
+                dto);
+        }
+
+        public async Task StoryReactionUpdatedAsync(
+            StoryReactionNotifierDto dto)
+        {
+            await _hubContext.Clients.All.SendAsync(
+                "StoryReactionUpdated",
+                dto);
+        }
+
+        public async Task StoryReactionRemovedAsync(
+            int storyId,
+            string userId)
+        {
+            await _hubContext.Clients.All.SendAsync(
+                "StoryReactionRemoved",
+                storyId,
+                userId);
+        }
     }
 }
