@@ -31,5 +31,6 @@ namespace RealTimeChatApp.Infrastructure.Persistence.Context
         public DbSet<UserBlock> UserBlocks { get; set; }
         public DbSet<Story> Stories { get; set; }
         public DbSet<StoryView> StoryViews { get; set; }
+        public DbSet<StoryReaction> StoryReactions { get; set; }
         }
 }

@@ -118,24 +118,7 @@ namespace RealTimeChatApp.Api.Controllers
 
             return result.ToActionResult();
         }
-        [HttpDelete("{storyId}")]
-        [SwaggerOperation(
-    Summary = "Delete story",
-    Description = "Deletes the specified story if it belongs to the authenticated user and notifies connected clients in real time using SignalR."
-)]
-        public async Task<IActionResult> DeleteStory(int storyId)
-        {
-            var result = await mediator.Send(
-                new DeleteStoryCommand(storyId));
-
-            if (result.IsSuccess)
-            {
-                await chatHubNotifier.StoryDeletedAsync(
-                    result.Value!);
-            }
-
-            return result.ToActionResult();
-        }
+    
         [HttpDelete("{storyId}")]
         [SwaggerOperation(
     Summary = "Delete story",

@@ -31,7 +31,9 @@ namespace RealTimeChatApp.Domain.Models
 
         public ApplicationUser User { get; set; } = null!;
 
-        public ICollection<StoryView> Views { get; set; }
-            = new List<StoryView>();
+        public ICollection<StoryView> Views { get; set; } = new List<StoryView>();
+        public ICollection<StoryReaction> Reactions { get; set; }
+= new List<StoryReaction>();
+            
     }
 }
