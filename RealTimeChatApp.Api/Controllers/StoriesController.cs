@@ -11,9 +11,11 @@ using RealTimeChatApp.Application.Features.Stories.Commands.CreateTextStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateVideoStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.DeleteStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.ReactToStory;
+using RealTimeChatApp.Application.Features.Stories.Commands.RemoveStoryReaction;
 using RealTimeChatApp.Application.Features.Stories.Commands.ViewStory;
 using RealTimeChatApp.Application.Features.Stories.Dtos;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryFeed;
+using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryReactions;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryViewers;
 using RealTimeChatApp.Domain.Enums;
 using Swashbuckle.AspNetCore.Annotations;
@@ -160,6 +162,41 @@ namespace RealTimeChatApp.Api.Controllers
                 else
                     await chatHubNotifier.StoryReactionUpdatedAsync(result.Value);
             }
+
+            return result.ToActionResult();
+        }
+        [HttpDelete("reaction")]
+        [SwaggerOperation(
+    Summary = "Remove story reaction",
+    Description = "Removes the authenticated user's reaction from a story."
+)]
+        [ProducesResponseType(typeof(ApiResponse<StoryReactionRemovedNotifierDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> RemoveReaction([FromQuery] RemoveStoryReactionCommand command)
+        {
+            var result = await mediator.Send(command);
+
+            if (result.IsSuccess && result.Value is not null)
+            {
+                await chatHubNotifier.StoryReactionRemovedAsync(result.Value);
+            }
+
+            return result.ToActionResult();
+        }
+        [HttpGet("reactions")]
+        [SwaggerOperation(
+    Summary = "Get story reactions",
+    Description = "Retrieves all reactions for the specified story."
+)]
+        [ProducesResponseType(typeof(ApiResponse<StoryReactionsDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetStoryReactions([FromQuery] GetStoryReactionsQuery query)
+        {
+            var result = await mediator.Send(query);
 
             return result.ToActionResult();
         }

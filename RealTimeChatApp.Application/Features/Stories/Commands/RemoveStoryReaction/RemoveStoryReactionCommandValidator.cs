@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FluentValidation;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +7,13 @@ using System.Threading.Tasks;
 
 namespace RealTimeChatApp.Application.Features.Stories.Commands.RemoveStoryReaction
 {
-    internal class RemoveStoryReactionCommandValidator
+    public sealed class RemoveStoryReactionCommandValidator
+     : AbstractValidator<RemoveStoryReactionCommand>
     {
+        public RemoveStoryReactionCommandValidator()
+        {
+            RuleFor(x => x.StoryId)
+                .GreaterThan(0);
+        }
     }
 }

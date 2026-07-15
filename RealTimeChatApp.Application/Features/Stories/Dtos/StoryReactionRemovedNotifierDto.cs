@@ -6,7 +6,10 @@ using System.Threading.Tasks;
 
 namespace RealTimeChatApp.Application.Features.Stories.Dtos
 {
-    internal class StoryReactionRemovedNotifierDto
+    public sealed class StoryReactionRemovedNotifierDto
     {
+        public int StoryId { get; set; }
+
+        public string UserId { get; set; } = null!;
     }
 }

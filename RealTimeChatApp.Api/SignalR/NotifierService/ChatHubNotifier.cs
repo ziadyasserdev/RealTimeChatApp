@@ -188,15 +188,13 @@ namespace RealTimeChatApp.Api.SignalR.NotifierService
                 "StoryReactionUpdated",
                 dto);
         }
-
         public async Task StoryReactionRemovedAsync(
-            int storyId,
-            string userId)
+    StoryReactionRemovedNotifierDto dto)
         {
             await _hubContext.Clients.All.SendAsync(
                 "StoryReactionRemoved",
-                storyId,
-                userId);
+                dto);
         }
+      
     }
 }
