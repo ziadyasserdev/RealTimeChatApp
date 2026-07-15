@@ -20,6 +20,13 @@ namespace RealTimeChatApp.Application.Extensions
 
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+            services.AddTransient(
+    typeof(IPipelineBehavior<,>),
+    typeof(CacheInvalidationBehavior<,>));
+
+            services.AddTransient(
+                typeof(IPipelineBehavior<,>),
+                typeof(CacheBehavior<,>));
             return services;
         }
     }
