@@ -7,6 +7,7 @@ using RealTimeChatApp.Application.Features.Authentications.Commands.ChangePasswo
 using RealTimeChatApp.Application.Features.Authentications.Commands.ForgotPassword;
 using RealTimeChatApp.Application.Features.Authentications.Commands.Login;
 using RealTimeChatApp.Application.Features.Authentications.Commands.Register;
+using RealTimeChatApp.Application.Features.Authentications.Commands.ResetPassword;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -73,6 +74,20 @@ namespace RealTimeChatApp.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
+        {
+            var result = await mediator.Send(command);
+
+            return result.ToActionResult();
+        }
+        [HttpPost("reset-password")]
+        [SwaggerOperation(
+    Summary = "Reset password",
+    Description = "Resets the user's password using the password reset token sent to their email."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordCommand command)
         {
             var result = await mediator.Send(command);
 
