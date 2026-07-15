@@ -90,7 +90,9 @@ namespace RealTimeChatApp.Api
             });
 
 
-      
+            builder.Services.Configure<EmailSettings>(
+               builder.Configuration.GetSection("EmailSettings")
+           );
 
 
             builder.Services.AddSwaggerGen(options =>

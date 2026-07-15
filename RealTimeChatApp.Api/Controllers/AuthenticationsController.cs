@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using RealTimeChatApp.Api.Commons.Responses;
 using RealTimeChatApp.Application.Features.Authentications.Commands.ChangePassword;
+using RealTimeChatApp.Application.Features.Authentications.Commands.ForgotPassword;
 using RealTimeChatApp.Application.Features.Authentications.Commands.Login;
 using RealTimeChatApp.Application.Features.Authentications.Commands.Register;
 using Swashbuckle.AspNetCore.Annotations;
@@ -58,6 +59,20 @@ namespace RealTimeChatApp.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordCommand command)
+        {
+            var result = await mediator.Send(command);
+
+            return result.ToActionResult();
+        }
+        [HttpPost("forgot-password")]
+        [SwaggerOperation(
+    Summary = "Forgot password",
+    Description = "Sends a password reset link to the user's registered email address."
+)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordCommand command)
         {
             var result = await mediator.Send(command);
 
