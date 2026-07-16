@@ -127,7 +127,11 @@ namespace RealTimeChatApp.Api.Controllers
 )]
         public async Task<IActionResult> GetStoryViewers(int storyId)
         {
-            var result = await mediator.Send(new GetStoryViewersQuery(storyId));
+            var result = await mediator.Send(new GetStoryViewersQuery()
+            {
+                StoryId = storyId,
+                                UserId = currentUserService.UserId!
+            });
 
             return result.ToActionResult();
         }

@@ -13,11 +13,11 @@ namespace RealTimeChatApp.Application.Commons.Caching
             public static string Feed(string userId)
                 => $"stories:feed:{userId}";
 
-            public static string Viewers(int storyId)
-                => $"stories:viewers:{storyId}";
+            public static string Viewers(int storyId,string userId)
+                => $"stories:viewers:{storyId}:{userId}";
 
             public static string Reactions(int storyId,string userId)
-                => $"stories:reactions:{storyId} {userId}";
+                => $"stories:reactions:{storyId}:{userId}";
         }
 
         public static class Groups

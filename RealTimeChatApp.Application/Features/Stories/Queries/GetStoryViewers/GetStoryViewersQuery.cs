@@ -10,15 +10,16 @@ using System.Threading.Tasks;
 
 namespace RealTimeChatApp.Application.Features.Stories.Queries.GetStoryViewers
 {
-    public record GetStoryViewersQuery(
-      int StoryId)
-      : IRequest<Result<StoryViewersDto>>,
+    public class GetStoryViewersQuery : IRequest<Result<StoryViewersDto>>,
         ICacheable
     {
+        public int StoryId { get; set; }
+        public string UserId { get; set; }
         public string CacheKey =>
-            CacheKeys.Stories.Viewers(StoryId);
+          CacheKeys.Stories.Viewers(StoryId, UserId);
 
         public TimeSpan CacheDuration =>
             TimeSpan.FromMinutes(2);
     }
+   
 }
