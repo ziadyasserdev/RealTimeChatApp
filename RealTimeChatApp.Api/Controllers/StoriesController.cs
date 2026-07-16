@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.SignalR;
 using RealTimeChatApp.Api.Commons.Responses;
 using RealTimeChatApp.Api.Hubs;
 using RealTimeChatApp.Api.SignalR.NotifierService;
+using RealTimeChatApp.Application.Contracts.Identity;
 using RealTimeChatApp.Application.Contracts.Repositories;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateImageStory;
 using RealTimeChatApp.Application.Features.Stories.Commands.CreateTextStory;
@@ -18,6 +19,7 @@ using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryFeed;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryReactions;
 using RealTimeChatApp.Application.Features.Stories.Queries.GetStoryViewers;
 using RealTimeChatApp.Domain.Enums;
+using RealTimeChatApp.Domain.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace RealTimeChatApp.Api.Controllers
@@ -29,14 +31,17 @@ namespace RealTimeChatApp.Api.Controllers
         private readonly IMediator mediator;
         private readonly IChatHubNotifier chatHubNotifier;
         private readonly IUnitOfWork unitOfWork;
+        private readonly ICurrentUserService currentUserService;
 
         public StoriesController(IMediator mediator
             , IChatHubNotifier chatHubNotifier
-            , IUnitOfWork unitOfWork)
+            , IUnitOfWork unitOfWork,
+            ICurrentUserService currentUserService)
         {
             this.mediator = mediator;
             this.chatHubNotifier = chatHubNotifier;
             this.unitOfWork = unitOfWork;
+            this.currentUserService = currentUserService;
         }
         [HttpPost("text")]
         [SwaggerOperation(
@@ -96,7 +101,10 @@ namespace RealTimeChatApp.Api.Controllers
 )]
         public async Task<IActionResult> GetFeed()
         {
-            var result = await mediator.Send(new GetStoryFeedQuery());
+            var result = await mediator.Send(new GetStoryFeedQuery
+            {
+                UserId = currentUserService.UserId!
+            });
 
             return result.ToActionResult();
         }
@@ -194,9 +202,13 @@ namespace RealTimeChatApp.Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetStoryReactions([FromQuery] GetStoryReactionsQuery query)
+        public async Task<IActionResult> GetStoryReactions(int storyId)
         {
-            var result = await mediator.Send(query);
+           if(!currentUserService.IsAuthenticated)
+                return Unauthorized("You are not authorized");
+            var result = await mediator.Send(
+       new GetStoryReactionsQuery() { UserId = currentUserService.UserId,
+       StoryId = storyId });
 
             return result.ToActionResult();
         }

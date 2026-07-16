@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using RealTimeChatApp.Application.Commons.Caching;
 using RealTimeChatApp.Application.Commons.Results;
 using RealTimeChatApp.Application.Features.Stories.Dtos;
 using System;
@@ -10,6 +11,14 @@ using System.Threading.Tasks;
 namespace RealTimeChatApp.Application.Features.Stories.Queries.GetStoryViewers
 {
     public record GetStoryViewersQuery(
-     int StoryId
- ) : IRequest<Result<StoryViewersDto>>;
+      int StoryId)
+      : IRequest<Result<StoryViewersDto>>,
+        ICacheable
+    {
+        public string CacheKey =>
+            CacheKeys.Stories.Viewers(StoryId);
+
+        public TimeSpan CacheDuration =>
+            TimeSpan.FromMinutes(2);
+    }
 }
